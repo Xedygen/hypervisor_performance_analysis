@@ -116,6 +116,29 @@ static const int mach_cpu_id2irqn[4] = {
 
 #define IRQ_PRIORITY_THR		0x10
 
+#elif CONFIG_MACH_RPI5 == 1
+/* Raspberry Pi 5 (BCM2712, 4x Cortex-A76, GIC-400) */
+
+/* Upper bound for the priority loop; GIC writes beyond the implemented
+ * ITLinesNumber are RAZ/WI. Highest hwirq seen in /proc/interrupts is 282. */
+#define CCPLEX_IRQ_SIZE			320
+#define MEMGUARD_TIMER_IRQ		26 /* EL2 hyp timer, PPI 10 */
+
+/* arm-pmu in bcm2712.dtsi: GIC_SPI 16..19, one per core */
+static const int mach_cpu_id2irqn[4] = {
+	32 + 16,
+	32 + 17,
+	32 + 18,
+	32 + 19,
+};
+
+/* Same GIC-400 as the ZCU102: 16 priority levels in non-secure state */
+#define IRQ_PRIORITY_MIN		0xF0
+#define IRQ_PRIORITY_MAX		0x00
+#define IRQ_PRIORITY_INC		0x10
+
+#define IRQ_PRIORITY_THR		0x10
+
 #else
 #error No MemGuard support implemented for this SoC.
 #endif 

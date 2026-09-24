@@ -276,6 +276,10 @@ static const struct qos_device devices [QOS_DEVICES] = {
 
 static const struct qos_device devices [QOS_DEVICES];
 
+/* No QoS block: qos_call() sees NULL and returns -ENOSYS */
+#define qos_map_device(base, size)		\
+    ((void *)0)
+
 #endif
 
 
