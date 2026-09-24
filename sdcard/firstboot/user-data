@@ -1,0 +1,49 @@
+#cloud-config
+hostname: rpi5
+manage_etc_hosts: true
+timezone: Europe/Istanbul
+keyboard:
+  model: pc105
+  layout: tr
+
+users:
+  - name: pi
+    groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: __PASSWD_HASH__
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - __SSH_PUBKEY__
+
+enable_ssh: true
+ssh_pwauth: true
+
+rpi:
+  interfaces:
+    serial: true
+
+# Needs internet at first boot (host shares Wi-Fi over enp5s0 via NM "rpi5-share").
+# Upgrade first so linux-headers-rpi-v8 matches the running kernel after the reboot below.
+package_update: true
+package_upgrade: true
+packages:
+  - avahi-daemon
+  - build-essential
+  - git
+  - device-tree-compiler
+  - linux-headers-rpi-v8
+  - python3-mako
+  - rt-tests
+  - stress-ng
+  - linux-perf
+  - htop
+  - tmux
+
+runcmd:
+  - [systemctl, enable, --now, ssh]
+
+power_state:
+  mode: reboot
+  message: first-boot provisioning done, rebooting into upgraded kernel
+  condition: true

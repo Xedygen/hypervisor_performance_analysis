@@ -1,0 +1,5 @@
+
+[all]
+# Jailhouse + cache coloring assume 4K pages; the Pi 5 default kernel_2712.img uses 16K.
+kernel=kernel8.img
+enable_uart=1
