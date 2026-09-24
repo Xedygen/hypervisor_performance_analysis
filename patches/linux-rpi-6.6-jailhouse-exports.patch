@@ -1,0 +1,71 @@
+diff --git a/arch/arm64/kernel/hyp-stub.S b/arch/arm64/kernel/hyp-stub.S
+index 65f76064c..51e86c34c 100644
+--- a/arch/arm64/kernel/hyp-stub.S
++++ b/arch/arm64/kernel/hyp-stub.S
+@@ -6,6 +6,7 @@
+  * Author:	Marc Zyngier <marc.zyngier@arm.com>
+  */
+ 
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/linkage.h>
+ 
+@@ -42,6 +43,7 @@ SYM_CODE_START(__hyp_stub_vectors)
+ 	ventry	el1_fiq_invalid			// FIQ 32-bit EL1
+ 	ventry	el1_error_invalid		// Error 32-bit EL1
+ SYM_CODE_END(__hyp_stub_vectors)
++EXPORT_SYMBOL_GPL(__hyp_stub_vectors) /* Jailhouse */
+ 
+ 	.align 11
+ 
+diff --git a/include/linux/io.h b/include/linux/io.h
+index 7304f2a69..d63153fe8 100644
+--- a/include/linux/io.h
++++ b/include/linux/io.h
+@@ -23,6 +23,10 @@ void __iowrite64_copy(void __iomem *to, const void *from, size_t count);
+ #ifdef CONFIG_MMU
+ int ioremap_page_range(unsigned long addr, unsigned long end,
+ 		       phys_addr_t phys_addr, pgprot_t prot);
++/* Jailhouse: same, without forcing NX */
++#define HAVE_IOREMAP_PAGE_RANGE_EXEC
++int ioremap_page_range_exec(unsigned long addr, unsigned long end,
++			    phys_addr_t phys_addr, pgprot_t prot);
+ #else
+ static inline int ioremap_page_range(unsigned long addr, unsigned long end,
+ 				     phys_addr_t phys_addr, pgprot_t prot)
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 5c2b5f93c..447319713 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -317,6 +317,23 @@ int ioremap_page_range(unsigned long addr, unsigned long end,
+ 					       ioremap_max_page_shift);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(ioremap_page_range); /* Jailhouse */
++
++/*
++ * Jailhouse: ioremap_page_range() forces NX, but the driver maps the
++ * hypervisor image and jumps into it, so it needs the caller's prot as-is.
++ */
++int ioremap_page_range_exec(unsigned long addr, unsigned long end,
++		phys_addr_t phys_addr, pgprot_t prot)
++{
++	int err;
++
++	err = vmap_range_noflush(addr, end, phys_addr, prot,
++				 ioremap_max_page_shift);
++	flush_cache_vmap(addr, end);
++	return err;
++}
++EXPORT_SYMBOL_GPL(ioremap_page_range_exec);
+ 
+ static void vunmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
+ 			     pgtbl_mod_mask *mask)
+@@ -2639,6 +2656,7 @@ struct vm_struct *__get_vm_area_caller(unsigned long size, unsigned long flags,
+ 	return __get_vm_area_node(size, 1, PAGE_SHIFT, flags, start, end,
+ 				  NUMA_NO_NODE, GFP_KERNEL, caller);
+ }
++EXPORT_SYMBOL_GPL(__get_vm_area_caller); /* Jailhouse */
+ 
+ /**
+  * get_vm_area - reserve a contiguous kernel virtual area
