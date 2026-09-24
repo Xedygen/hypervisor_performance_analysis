@@ -1,0 +1,8 @@
+# Local only: big, third-party, or its own git repo
+/raspberrypi-linux/
+/build/
+/third_party/
+
+# SD card image (downloaded, 540 MB) and the generated Pi password
+/sdcard/*.img.xz
+/sdcard/firstboot/.pi-password
