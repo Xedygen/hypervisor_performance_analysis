@@ -36,7 +36,7 @@ ifneq ($(wildcard $(INC_CONFIG_H)),)
 KBUILD_CFLAGS += -include $(INC_CONFIG_H)
 endif
 
-OBJCOPYFLAGS := -O binary
+OBJCOPYFLAGS := -O binary --remove-section=.note.gnu.property
 # prior to 4.19
 LDFLAGS += --gc-sections -T
 # since 4.19

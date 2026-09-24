@@ -43,7 +43,7 @@ LINUXINCLUDE += -I$(INMATES_LIB)/include
 
 define DECLARE_TARGETS =
  _TARGETS = $(1)
- always := $$(_TARGETS)
+ always-y := $$(_TARGETS)
  # $(NAME-y) NAME-linked.o NAME.bin
  targets += $$(foreach t,$$(_TARGETS:.bin=-y),$$($$t)) \
             $$(_TARGETS:.bin=-linked.o) $$(_TARGETS)
@@ -58,7 +58,7 @@ $(obj)/%-linked.o: $(INMATES_LIB)/inmate.lds $$(addprefix $$(obj)/,$$($$*-y)) \
 		   $(INMATES_LIB)/$$(if $$($$*_32),lib32.a,lib.a)
 	$(call if_changed,ld)
 
-$(obj)/%.bin: $(obj)/%-linked.o
+$(obj)/%.bin: $(obj)/%-linked.o FORCE
 	$(call if_changed,objcopy)
 
 # 32-bit (i386) support

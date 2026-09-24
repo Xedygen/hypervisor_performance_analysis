@@ -10,7 +10,7 @@
  * the COPYING file in the top-level directory.
  */
 
-#include <stdarg.h>
+#include <jailhouse/stdarg.h>
 #include <jailhouse/control.h>
 #include <jailhouse/printk.h>
 #include <jailhouse/processor.h>

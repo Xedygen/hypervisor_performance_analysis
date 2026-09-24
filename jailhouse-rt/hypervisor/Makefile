@@ -87,12 +87,12 @@ ifeq ($(filter %/Makefile.clean,$(MAKEFILE_LIST)),)
 $(obj)/arch/$(SRCARCH): $(obj)/$(ASM_DEFINES_H)
 endif
 
-always :=
+always-y :=
 
 subdir-y := arch/$(SRCARCH)
 
 define BUILD_JAILHOUSE_template
-always += jailhouse$(1).bin
+always-y += jailhouse$(1).bin
 
 $$(obj)/arch/$$(SRCARCH)/lib$(1).a: $$(obj)/arch/$$(SRCARCH)
 	@true
