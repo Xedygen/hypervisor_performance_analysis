@@ -273,6 +273,12 @@ static long get_max_cpus(u32 cpu_set_size,
 	return -EINVAL;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0)
+#define __get_vm_area(size, flags, start, end)			\
+	__get_vm_area_caller(size, flags, start, end,		\
+			     __builtin_return_address(0))
+#endif
+
 void *jailhouse_ioremap(phys_addr_t phys, unsigned long virt,
 			unsigned long size)
 {
@@ -805,7 +811,7 @@ unlock_out:
 	return err;
 }
 
-int jailhouse_cmd_qos(struct jailhouse_qos_args __user *arg)
+static int jailhouse_cmd_qos(struct jailhouse_qos_args __user *arg)
 {
 	struct jailhouse_qos_args qos_args;
 	struct qos_setting * settings;
@@ -1037,7 +1043,12 @@ static int __init jailhouse_init(void)
 #endif
 #define RESOLVE_EXTERNAL_SYMBOL(symbol...) __RESOLVE_EXTERNAL_SYMBOL(symbol)
 
+#ifdef HAVE_IOREMAP_PAGE_RANGE_EXEC
+	/* ioremap_page_range() forces NX since 5.x; the hypervisor must run */
+	ioremap_page_range_sym = &ioremap_page_range_exec;
+#else
 	RESOLVE_EXTERNAL_SYMBOL(ioremap_page_range);
+#endif
 #ifdef CONFIG_X86
 	RESOLVE_EXTERNAL_SYMBOL(lapic_timer_period);
 #endif
