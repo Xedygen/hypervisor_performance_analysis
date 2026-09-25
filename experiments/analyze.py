@@ -208,6 +208,24 @@ def main(res):
             if j:
                 md.append(f"| {test} | {b} | {j} | {100 * (b - j) / b:.1f}% |")
 
+    # follow-up experiments (pi_extra.sh): one row per config and load
+    extras = sorted(d for d in res.glob("extra-*") if (d / "markers.log").exists())
+    if extras:
+        md += ["", "## Follow-up experiments", "",
+               "e1 = colour-share sweep, e2 = working-set sweep, e3 = 2+2 core split, "
+               "e4 = MemGuard on the root cores (budget = L2 refills per core per 1 ms).", "",
+               "| Config | Load | Runs | Task avg/max (us) | Resp >100 us | Lat max (us) | "
+               "L3 refills/period | Bus accesses/period |",
+               "|---|---|---|---|---|---|---|---|"]
+        for d in extras:
+            rows = runs_with_stats(d)
+            write_csv(rows, d / "runs.csv")
+            for load in dict.fromkeys(r["load"] for r in rows):
+                c = combine([r for r in rows if r["load"] == load])
+                md.append(f"| {d.name[len('extra-'):]} | {load} | {c['runs']} | {us(c['exe_avg_ns'])} / "
+                          f"{us(c['exe_max_ns'])} | {c['resp_over_pct']:.2f}% | {us(c['lat_max_ns'])} | "
+                          f"{c['l3_refill_per_period']:.1f} | {c['bus_access_per_period']:.0f} |")
+
     # thermal
     th = res / "thermal.csv"
     if th.exists():
