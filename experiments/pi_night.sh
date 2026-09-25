@@ -124,11 +124,16 @@ log "start, temp $(temp)"
 
 # 1. S4 on plain Linux, no hypervisor. CPU 3 offline so the root cell and the
 #    reference run have the same 3 CPUs.
+# Skipped when a complete result exists: CPU 3 does not come back online
+# after a long offline period on this board (firmware PSCI CPU_ON fails),
+# so this step needs a reboot afterwards. Better: boot with maxcpus=3.
 use_config bare
-echo 0 | sudo tee /sys/devices/system/cpu/cpu3/online >/dev/null
-s4_unixbench bare
-echo 1 | sudo tee /sys/devices/system/cpu/cpu3/online >/dev/null
-sleep 5
+if [ "$(grep -c 'Index Score' "$OUT/unixbench-bare.txt" 2>/dev/null)" != 2 ]; then
+	echo 0 | sudo tee /sys/devices/system/cpu/cpu3/online >/dev/null
+	s4_unixbench bare
+	log "bare done; reboot before the Jailhouse part (CPU 3 stays offline)"
+	exit 0
+fi
 
 # 2-5. Jailhouse, guest without colouring (spatial isolation only)
 use_config plain
