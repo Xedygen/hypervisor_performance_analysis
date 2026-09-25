@@ -12,7 +12,8 @@ Working (2026-09-25):
   CPU hotplug. Guest cells run on CPU 3 and print through the virtual console (no UART needed).
 - Cache colouring: the hypervisor probes the L3 (2 MB, 16-way, 32 colours); coloured guest config
   `rpi5-rtbench-col.c` (8/32 colours).
-- Thesis experiments (S1-S4) run unattended with `experiments/pi_night.sh`; results go to `results/pi5/`.
+- Thesis experiments (S1-S4 + follow-ups) run unattended (`experiments/pi_night.sh`, `pi_extra.sh`,
+  `pi_fixed.sh`, restarted after resets by `resume.sh` from cron @reboot); results in `results/`.
 - Active Cooler: temperature-controlled with early trip points (40/50/57/63 C -> 100/150/200/255 PWM,
   Pi OS default is 50/60/67.5/75 C). Thermal guard service kills load at 75 C.
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
@@ -27,21 +28,53 @@ Pi 5 bugs found and fixed:
   (jailhouse-rt does not touch the register).
 - `ioremap_page_range` forces NX in 6.x; kernel patch adds `ioremap_page_range_exec`.
 
+## Results so far (2026-09-25)
+
+Two unattended campaigns, same runs: `results/pi5/` (default `ondemand` governor) and
+`results/pi5-fixed/` (pinned at 2.4 GHz). Summaries in each `summary.md`, figures in `figures/`,
+side-by-side in `results/figures-compare/`. The guest is the bare-metal `rt-bench` (1 kHz timer,
+pointer-chase control task, 100 us deadline); all numbers below are the fixed-frequency campaign.
+
+- Hypervisor latency is tiny: wake-up latency avg 0.30 us, worst 2.1 us idle, never above 44 us under load.
+- **Spatial isolation alone fails under memory load**: `cache`/`stream`/`vm` on the root cores slow the
+  guest task from 14 us to 380-480 us, with 96-100 % deadline misses; L3 refills go from ~8 to ~1000 per period.
+- **Colouring only the guest (the Pi 4 thesis config) has no effect**: root Linux still uses the guest colours.
+- **Guest + root partitioned (colorhog)** roughly halves L3 misses under `cache` (875 -> 469) and task time
+  (379 -> 232 us), but most periods still miss the deadline.
+- Follow-ups: the L3 behaves inclusively (a 256 KB set that fits the private L2 is still hit); colouring
+  protects it well (3.9 % misses); more colours help; fewer noisy cores (2+2) help; `stream` (DRAM bandwidth)
+  is not fixed by colouring - needs memory-bandwidth regulation.
+- S2 (100 stressors): 27.1 % -> 25.0 % response-deadline misses (default frequency: 29.8 % -> 26.7 %).
+- S4 UnixBench overhead of the root cell: 3.3 % (1 copy) / 3.7 % (3 copies) at 2.4 GHz
+  (default frequency: 2.7 % / 1.4 %). Costliest: pipe-based context switching.
+- Frequency pinning changes little: the conclusions hold in both campaigns.
+- Board hangs (watchdog reset, run skipped as "hang"): default campaign `pipe`, `pipeherd`,
+  `tlb-shootdown` (all with colorhog) and `vm` (8/32 colours + colorhog); fixed campaign `opcode`
+  (spatial only), `vm` (16/32 + colorhog), `vm` (2+2 split, no colorhog). Most involve colorhog pinning
+  memory on the 1 GB board, but two did not, and none reproduced reliably - root cause unknown.
+- MemGuard (E4) hung the board as soon as it was enabled; experiment made opt-in.
+- Thermal: max 57.9 C, never throttled.
+
 ## Next steps
 
-1. [ ] Read `results/pi5/summary.md` (written by `experiments/analyze.py`) and put the numbers into the
-   write-up (Pi 4 vs Pi 5).
-2. [ ] Repeat S2 twice more per config (thesis used >= 3 full cycles; the night run did 1 per config).
-3. [ ] Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
+1. [ ] Put the numbers and figures into the write-up (Pi 4 vs Pi 5), and describe `rt-bench` (bare-metal,
+   replaces cyclictest) and `colorhog` (root side of the colour partition) in the method section.
+2. [ ] Debug the board hangs with a USB-TTL adapter (3.3 V) on the SoC debug UART (PL011 `0x107d001000`,
+   3-pin JST connector), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the
+   interesting cases. Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
+3. [ ] Fix MemGuard on BCM2712 (hangs at enable; likely the EL2 timer IRQ 26 that unblocks throttled
+   cores), then run E4 (`MEMGUARD=1 experiments/pi_extra.sh`) - needed for the `stream`/DRAM case.
+4. [ ] Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1 per config).
+5. [ ] Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
    `0x107fff9000`/`0x107fffa000`, plus a console driver using the Jailhouse debug-putc hypercall
-   (`hvc #0x4a48`, x0 = 8, x1 = char). The measurements so far use the bare-metal `rt-bench` inmate.
-4. [ ] Write-up: describe `rt-bench` (bare-metal, replaces cyclictest) and `colorhog` (root side of the
-   colour partition) in the method section; config listings and memory-map figure.
-5. [ ] Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
+   (`hvc #0x4a48`, x0 = 8, x1 = char).
+6. [ ] Proper root-cell colouring instead of colorhog (jailhouse-rt can colour the root cell; needs more
+   RAM than 1 GB leaves).
+7. [ ] Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
    rt-tests, linux-perf, python3-mako, tmux were missing and were installed by hand). Probably apt
    ran before the network was fully up; check `/var/log/cloud-init-output.log` on a fresh flash.
-6. [ ] USB-TTL adapter (3.3 V) still useful: hypervisor console on the SoC debug UART (PL011 `0x107d001000`,
-   3-pin JST connector) for anything that hangs the whole board.
+8. [ ] CPU 3 does not come back online after a long offline period without Jailhouse (firmware PSCI
+   CPU_ON fails); bare-Linux reference runs therefore go last or should boot with `maxcpus=3`.
 
 ## How to rebuild and redeploy
 
