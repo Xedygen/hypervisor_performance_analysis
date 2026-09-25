@@ -6,6 +6,7 @@
 # E2  working-set sweep: 256/512/768/1024 KB, uncoloured and coloured 8/32
 # E3  2+2 core split: guest cell on CPUs 2-3, root load on CPUs 0-1 only
 # E4  MemGuard on the root cores: 1 ms period, budget of L2 refills per core
+#     (opt-in, MEMGUARD=1: it hangs the Pi 5 at the moment)
 # Results go to <results>/extra-<name>/ with the same layout as pi_night.sh.
 RES=${1:-$HOME/results}
 . "$(dirname "$0")/lib.sh"
@@ -51,7 +52,10 @@ step e3 loads_run e3 2 $SECS $MAIN_LOADS pwalk
 hog_off
 ROOT_CPUS=0-2 NLOAD=3
 
-# E4: MemGuard on the root cell's CPUs (period 1000 us, L2 refills per period)
+# E4: MemGuard on the root cell's CPUs (period 1000 us, L2 refills per period).
+# Opt-in (MEMGUARD=1): enabling it hung the whole board on the Pi 5 (first
+# campaign, budget 20000) - the BCM2712 MemGuard target is not working yet.
+[ "${MEMGUARD:-0}" = 1 ] &&
 for cfg in "plain rpi5-rtbench" "colhog rpi5-rtbench-col"; do
 	set -- $cfg
 	for budget in 20000 5000 1000; do
