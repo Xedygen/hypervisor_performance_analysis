@@ -73,8 +73,12 @@ run_load() {	# <load> <seconds>
 	idle)	sleep "$2" ;;
 	vm)	stress-ng --vm 3 --vm-bytes 64M --taskset 0-2 --timeout "${2}s" \
 			>/dev/null 2>>"$OUT/stress.err" ;;
-	pwalk)	for c in 0 1 2; do taskset -c $c "$EXP/pwalk" 64 4096 "$2" >/dev/null & done
-		wait ;;
+	pwalk)	local pids=()
+		for c in 0 1 2; do
+			taskset -c $c "$EXP/pwalk" 64 4096 "$2" >/dev/null & pids+=($!)
+		done
+		# only these: a bare "wait" would also wait for the console logger
+		wait "${pids[@]}" ;;
 	*)	stress-ng --"$1" 3 --taskset 0-2 --timeout "${2}s" \
 			>/dev/null 2>>"$OUT/stress.err" ;;
 	esac
@@ -119,6 +123,14 @@ hog_on() {
 }
 hog_off() { sudo pkill colorhog; sleep 2; }
 
+# run a step once; a restarted script skips steps that already finished
+step() {	# <name> <function> [args]
+	local done="$OUT/done.$1"
+	[ -e "$done" ] && { log "skip $1 (done)"; return; }
+	shift
+	"$@" && touch "$done"
+}
+
 mkdir -p "$RES"
 log "start, temp $(temp)"
 
@@ -135,28 +147,30 @@ if [ "$(grep -c 'Index Score' "$OUT/unixbench-bare.txt" 2>/dev/null)" != 2 ]; th
 	exit 0
 fi
 
-# 2-5. Jailhouse, guest without colouring (spatial isolation only)
+# Order: the colouring comparison (S1/S3 for all three configs) first, then
+# the long S2 and S4 runs.
 use_config plain
 start_cell plain
-s1_idle 300 3
-s3_hw 3 60
-s2_stressors
-s4_unixbench jailhouse
+step s1 s1_idle 300 3
+step s3 s3_hw 3 60
 
-# 6. guest coloured (8/32 L3 colours), root Linux unrestricted (thesis config)
-use_config col
+use_config col		# guest coloured 8/32, root Linux unrestricted (thesis config)
 start_cell col
-s1_idle 300 1
-s3_hw 3 60
+step s1 s1_idle 300 1
+step s3 s3_hw 3 60
 
-# 7. guest coloured and root kept out of the guest colours (colorhog)
-use_config colhog
+use_config colhog	# guest coloured, root kept out of the guest colours
 start_cell col
 hog_on
-s1_idle 300 1
-s3_hw 3 60
-s2_stressors
+step s1 s1_idle 300 1
+step s3 s3_hw 3 60
+step s2 s2_stressors
 hog_off
+
+use_config plain
+start_cell plain
+step s2 s2_stressors
+step s4 s4_unixbench jailhouse
 
 log "all done, temp $(temp)"
 touch "$RES/DONE"
