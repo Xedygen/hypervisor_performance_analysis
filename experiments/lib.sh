@@ -3,6 +3,8 @@
 # Settings (override before calling):
 #   ROOT_CPUS   CPUs of the root cell used for load        (default 0-2)
 #   NLOAD       stressor instances, one per root CPU       (default 3)
+#   FIX_FREQ=1  pin all cores to the performance governor (2.4 GHz) for
+#               every configuration (the Pi 5 cores share one clock)
 set -u
 RES=${RES:-$HOME/results}
 JH=$HOME/jailhouse-rt
@@ -39,10 +41,21 @@ check_thermal() {
 	wait_cool
 }
 
+fix_freq() {
+	local p
+	for p in /sys/devices/system/cpu/cpufreq/policy*; do
+		echo performance | sudo tee "$p/scaling_governor" >/dev/null
+	done
+}
+
 use_config() {
 	OUT=$RES/$1
 	mkdir -p "$OUT"
-	log "=== config $1 (root CPUs $ROOT_CPUS, $NLOAD load instances)"
+	[ "${FIX_FREQ:-0}" = 1 ] && fix_freq
+	local f=/sys/devices/system/cpu/cpu0/cpufreq
+	log "=== config $1 (root CPUs $ROOT_CPUS, $NLOAD load instances," \
+	    "governor $(cat $f/scaling_governor), $(($(cat $f/scaling_cur_freq) / 1000)) MHz)"
+	mark CONFIG "$(cat $f/scaling_governor)" "$(cat $f/scaling_cur_freq)"
 }
 
 jh() { sudo "$JH/tools/jailhouse" "$@"; }
@@ -117,17 +130,19 @@ s3_hw() {	# <repetitions> <seconds>
 	loads_run s3 "$1" "$2" idle cache stream memcpy vm pwalk
 }
 
-s2_stressors() {	# 100 stressors x 30 s, as in the thesis
-	local s rc
-	while read -r s; do
-		already_run s2 "$s" 1 && continue
-		check_thermal
-		mark START s2 "$s" 1
-		timeout 45 stress-ng --"$s" "$NLOAD" --taskset "$ROOT_CPUS" --timeout 30s \
-			>/dev/null 2>>"$OUT/stress.err"; rc=$?
-		mark END s2 "$s" 1 "$rc"
-		sleep 2
-	done < "$EXP/stressors.txt"
+s2_stressors() {	# [repetitions] - 100 stressors x 30 s, as in the thesis
+	local s rc r
+	for r in $(seq 1 "${1:-1}"); do
+		while read -r s; do
+			already_run s2 "$s" "$r" && continue
+			check_thermal
+			mark START s2 "$s" "$r"
+			timeout 45 stress-ng --"$s" "$NLOAD" --taskset "$ROOT_CPUS" \
+				--timeout 30s >/dev/null 2>>"$OUT/stress.err"; rc=$?
+			mark END s2 "$s" "$r" "$rc"
+			sleep 2
+		done < "$EXP/stressors.txt"
+	done
 }
 
 s4_unixbench() {	# <tag>
