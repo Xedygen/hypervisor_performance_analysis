@@ -1,50 +1,47 @@
 # Pi 5 Jailhouse port — status and TODO
 
-Last updated 2026-09-24. Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
+Last updated 2026-09-25. Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
 
 ## Where it stands
 
-Working:
+Working (2026-09-25):
 - Pi OS Lite (Trixie) on SD, reachable at `ssh -i ~/.ssh/id_ed25519_rpi5 pi@rpi5.local` (10.42.0.150).
   Host shares Wi-Fi over `enp5s0` (NM connection `rpi5-share`).
 - Custom root-cell kernel `6.6.78-v8-jailhouse+` (4K pages) is the default boot kernel.
-- jailhouse-rt builds against it; driver loads; **`jailhouse enable configs/arm64/rpi5.cell` works**
-  (all 4 CPUs, MemGuard init OK, cache probe picks L3: 2 MB, 16-way, 32 colours, way size 0x20000).
-- Active Cooler forced to full speed permanently (`dtparam=fan_temp*` in `/boot/firmware/config.txt`).
-- systemd hardware watchdog (1 min) auto-reboots the Pi after a hang. No power-cycling needed.
+- **jailhouse-rt runs end to end on the Pi 5**: `enable`, `cell create/load/start/destroy`, `disable`,
+  CPU hotplug. Guest cells run on CPU 3 and print through the virtual console (no UART needed).
+- Cache colouring: the hypervisor probes the L3 (2 MB, 16-way, 32 colours); coloured guest config
+  `rpi5-rtbench-col.c` (8/32 colours).
+- Thesis experiments (S1-S4) run unattended with `experiments/pi_night.sh`; results go to `results/pi5/`.
+- Active Cooler: temperature-controlled with early trip points (40/50/57/63 C -> 100/150/200/255 PWM,
+  Pi OS default is 50/60/67.5/75 C). Thermal guard service kills load at 75 C.
+- systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
 
-Blocked:
-- **`jailhouse cell create configs/arm64/rpi5-inmate-demo.cell` hangs the whole board.**
-  Linux offlines CPU 3 (`psci: CPU3 killed`), then everything freezes and the watchdog resets it.
-  The hypervisor prints nothing before the hang (`jailhouse console -f` streamed live to the host
-  showed no new lines), so it stops somewhere in `cell_create` while all root CPUs are suspended.
-  RAM does not survive the watchdog reset (tested at 0x3fbff000), so the log can't be recovered.
+Pi 5 bugs found and fixed:
+- **Stale SGI after `enable`** (jailhouse-rt): Linux enables the hypervisor from an IPI handler, so the
+  physical SGI stays active; SGI 1 is Jailhouse's management event, so CPUs could never be suspended or
+  woken again (CPU hotplug failed, `cell create` hung the board). Fix ported from upstream Jailhouse:
+  deactivate active SGIs in `gicv2_cpu_init`.
+- **`FPEXC32_EL2` on Cortex-A76** (upstream Jailhouse): the register is UNDEFINED when EL1 has no
+  AArch32, so `arm_cpu_reset` faulted at EL2 when parking a CPU. Fixed in `patches/siemens-jailhouse-rpi5.patch`
+  (jailhouse-rt does not touch the register).
+- `ioremap_page_range` forces NX in 6.x; kernel patch adds `ioremap_page_range_exec`.
 
 ## Next steps
 
-1. [ ] **Get the hypervisor log from the hang. Needs the USB-TTL adapter (3.3 V only!).**
-   - Easiest: set the root config `debug_console` to the SoC debug UART (PL011 `0x107d001000`,
-     the 3-pin JST "UART" connector between the HDMI ports; needs a JST-SH to Dupont cable),
-     `.type = JAILHOUSE_CON_TYPE_PL011`, flags `JAILHOUSE_CON_ACCESS_MMIO | JAILHOUSE_CON_REGDIST_4`.
-   - Alternative: GPIO 14/15 = RP1 UART0 at `0x1f00030000` (PCIe BAR, only valid after Linux has set
-     up RP1; also Linux's `ttyAMA0` console, so drop `console=serial0` from `jh66/cmdline.txt`).
-   - Unfinished no-adapter idea: test whether RAM lower in the carve-out (0x30000000, 0x3ec00000)
-     survives a watchdog reset. The script is on the Pi at `~/marker.py`
-     (`sudo python3 marker.py write`, crash with sysrq `c`, after reboot `sudo python3 marker.py read`).
-2. [ ] Suspects for the `cell create` hang, to check once there is a log:
-   - jailhouse-rt colouring hooks in `cell_create` (`coloring_cell_init`, `hypervisor/arch/arm64/coloring.c`).
-   - SGI delivery / CPU 3 park-reset path on Cortex-A76 (MPIDR Aff1 = core id, not Aff0).
-   - MemGuard IRQ hooks (`memguard_handle_interrupt`, `memguard_block_if_needed`). Try with MemGuard
-     disabled (stub out `memguard_init`) to rule it in or out.
-   - Compare against upstream `third_party/siemens-jailhouse` (plain Jailhouse, no colouring/MemGuard):
-     port the same 6.6 fixes there and try `cell create`. If it works, the bug is in jailhouse-rt's additions.
-3. [ ] Run `gic-demo` in the cell; output should show up in `sudo jailhouse console -f`
-   (cell config sets `JAILHOUSE_CELL_VIRTUAL_CONSOLE_ACTIVE`).
-4. [ ] Coloured cell config: `jailhouse_memory_colored` regions for the guest, e.g. 8 of 32 L3 colours (25%, as in the Pi 4 thesis).
-5. [ ] Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
-   `0x107fff9000`/`0x107fffa000`, plus a small console driver using the Jailhouse debug-putc hypercall
-   (`hvc #0x4a48`, x0 = 8, x1 = char). Zephyr has no ARM64 Jailhouse console.
-6. [ ] Experiments (thesis scenarios 1–4: cyclictest/stress-ng/UnixBench/perf) on the Pi 5.
+1. [ ] Read `results/pi5/summary.md` (written by `experiments/analyze.py`) and put the numbers into the
+   write-up (Pi 4 vs Pi 5).
+2. [ ] Repeat S2 twice more per config (thesis used >= 3 full cycles; the night run did 1 per config).
+3. [ ] Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
+   `0x107fff9000`/`0x107fffa000`, plus a console driver using the Jailhouse debug-putc hypercall
+   (`hvc #0x4a48`, x0 = 8, x1 = char). The measurements so far use the bare-metal `rt-bench` inmate.
+4. [ ] Write-up: describe `rt-bench` (bare-metal, replaces cyclictest) and `colorhog` (root side of the
+   colour partition) in the method section; config listings and memory-map figure.
+5. [ ] Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
+   rt-tests, linux-perf, python3-mako, tmux were missing and were installed by hand). Probably apt
+   ran before the network was fully up; check `/var/log/cloud-init-output.log` on a fresh flash.
+6. [ ] USB-TTL adapter (3.3 V) still useful: hypervisor console on the SoC debug UART (PL011 `0x107d001000`,
+   3-pin JST connector) for anything that hangs the whole board.
 
 ## How to rebuild and redeploy
 
