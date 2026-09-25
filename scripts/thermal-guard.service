@@ -1,0 +1,9 @@
+[Unit]
+Description=Thermal guard for unattended experiments (kills load at 75 C)
+
+[Service]
+ExecStart=/usr/local/bin/thermal_guard.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
