@@ -1,0 +1,240 @@
+diff --git a/driver/main.c b/driver/main.c
+index c857247..988c2f9 100644
+--- a/driver/main.c
++++ b/driver/main.c
+@@ -934,7 +934,11 @@ static int __init jailhouse_init(void)
+ #endif
+ #define RESOLVE_EXTERNAL_SYMBOL(symbol...) __RESOLVE_EXTERNAL_SYMBOL(symbol)
+ 
++#ifdef HAVE_IOREMAP_PAGE_RANGE_EXEC
++	ioremap_page_range_sym = &ioremap_page_range_exec;
++#else
+ 	RESOLVE_EXTERNAL_SYMBOL(ioremap_page_range);
++#endif
+ #ifdef CONFIG_X86
+ 	RESOLVE_EXTERNAL_SYMBOL(lapic_timer_period);
+ #endif
+diff --git a/driver/pci.c b/driver/pci.c
+index da51647..98c907d 100644
+--- a/driver/pci.c
++++ b/driver/pci.c
+@@ -335,7 +335,11 @@ static bool create_vpci_of_overlay(struct jailhouse_system *config)
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+ 	if (of_overlay_fdt_apply(__dtb_vpci_template_begin,
+ 			__dtb_vpci_template_end - __dtb_vpci_template_begin,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,6,0)
++			&overlay_id, NULL) < 0)
++#else
+ 			&overlay_id) < 0)
++#endif
+ 		return false;
+ 
+ #else /* < 4.17 */
+diff --git a/hypervisor/arch/arm64/control.c b/hypervisor/arch/arm64/control.c
+index 5b41b39..8cde679 100644
+--- a/hypervisor/arch/arm64/control.c
++++ b/hypervisor/arch/arm64/control.c
+@@ -21,7 +21,7 @@
+ void arm_cpu_reset(unsigned long pc, bool aarch32)
+ {
+ 	u64 hcr_el2;
+-	u64 fpexc32_el2;
++	u64 fpexc32_el2, id_aa64pfr0;
+ 
+ 	/* put the cpu in a reset state */
+ 	/* AARCH64_TODO: handle big endian support */
+@@ -58,9 +58,14 @@ void arm_cpu_reset(unsigned long pc, bool aarch32)
+ 	arm_write_sysreg(TTBR1_EL1, 0);
+ 	arm_write_sysreg(VBAR_EL1, 0);
+ 
+-	arm_read_sysreg(FPEXC32_EL2, fpexc32_el2);
+-	fpexc32_el2 |= FPEXC_EL2_EN_BIT;
+-	arm_write_sysreg(FPEXC32_EL2, fpexc32_el2);
++	/* FPEXC32_EL2 is UNDEFINED unless EL1 supports AArch32 (e.g. not
++	 * on Cortex-A76) */
++	arm_read_sysreg(ID_AA64PFR0_EL1, id_aa64pfr0);
++	if (((id_aa64pfr0 >> 4) & 0xf) == 2) {
++		arm_read_sysreg(FPEXC32_EL2, fpexc32_el2);
++		fpexc32_el2 |= FPEXC_EL2_EN_BIT;
++		arm_write_sysreg(FPEXC32_EL2, fpexc32_el2);
++	}
+ 
+ 	/* wipe timer registers */
+ 	arm_write_sysreg(CNTP_CTL_EL0, 0);
+diff --git a/configs/arm64/rpi5.c b/configs/arm64/rpi5.c
+new file mode 100644
+index 0000000..149557e
+--- /dev/null
++++ b/configs/arm64/rpi5.c
+@@ -0,0 +1,110 @@
++/*
++ * Jailhouse, a Linux-based partitioning hypervisor
++ *
++ * Configuration for Raspberry Pi 5 (BCM2712, 4x Cortex-A76, GIC-400), 1 GB
++ *
++ * Memory layout (Linux booted with mem=768M):
++ *   0x00000000 - 0x2fffffff  root cell Linux
++ *   0x30000000 - 0x3ebfffff  inmate cells
++ *   0x3ec00000 - 0x3fbfffff  hypervisor (16 MB)
++ *   0x3fc00000 -             VideoCore (firmware /memreserve/), not touched
++ *
++ * No debug UART is configured: hypervisor output goes to the virtual
++ * console only, read with "jailhouse console -f".
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ */
++
++#include <jailhouse/types.h>
++#include <jailhouse/cell-config.h>
++
++struct {
++	struct jailhouse_system header;
++	__u64 cpus[1];
++	struct jailhouse_memory mem_regions[4];
++	struct jailhouse_irqchip irqchips[2];
++} __attribute__((packed)) config = {
++	.header = {
++		.signature = JAILHOUSE_SYSTEM_SIGNATURE,
++		.revision = JAILHOUSE_CONFIG_REVISION,
++		.architecture = JAILHOUSE_ARM64,
++		.flags = JAILHOUSE_SYS_VIRTUAL_DEBUG_CONSOLE,
++		.hypervisor_memory = {
++			.phys_start = 0x3ec00000,
++			.size       = 0x01000000,
++		},
++		.debug_console = {
++			.type = JAILHOUSE_CON_TYPE_NONE,
++		},
++		.platform_info = {
++			.arm = {
++				.gic_version = 2,
++				.gicd_base = 0x107fff9000,
++				.gicc_base = 0x107fffa000,
++				.gich_base = 0x107fffc000,
++				.gicv_base = 0x107fffe000,
++				.maintenance_irq = 25,
++			},
++		},
++		.root_cell = {
++			.name = "Raspberry-Pi5",
++
++			.cpu_set_size = sizeof(config.cpus),
++			.num_memory_regions = ARRAY_SIZE(config.mem_regions),
++			.num_irqchips = ARRAY_SIZE(config.irqchips),
++		},
++	},
++
++	.cpus = {
++		0b1111,
++	},
++
++	.mem_regions = {
++		/* SoC peripherals, up to (not including) the GIC */ {
++			.phys_start = 0x1000000000,
++			.virt_start = 0x1000000000,
++			.size =         0x7fff9000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_IO,
++		},
++		/* PCIe windows, incl. RP1 (Ethernet, GPIO UARTs) */ {
++			.phys_start = 0x1c00000000,
++			.virt_start = 0x1c00000000,
++			.size =        0x400000000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_IO,
++		},
++		/* RAM: Linux */ {
++			.phys_start = 0x0,
++			.virt_start = 0x0,
++			.size = 0x30000000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_EXECUTE | JAILHOUSE_MEM_DMA,
++		},
++		/* RAM: inmate cells, loadable from the root cell */ {
++			.phys_start = 0x30000000,
++			.virt_start = 0x30000000,
++			.size = 0x0ec00000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_EXECUTE | JAILHOUSE_MEM_DMA,
++		},
++	},
++
++	.irqchips = {
++		/* GIC-400, SPIs 32..159 */ {
++			.address = 0x107fff9000,
++			.pin_base = 32,
++			.pin_bitmap = {
++				0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
++			},
++		},
++		/* GIC-400, SPIs 160..287 (highest in use: 282) */ {
++			.address = 0x107fff9000,
++			.pin_base = 160,
++			.pin_bitmap = {
++				0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff
++			},
++		},
++	},
++};
+diff --git a/configs/arm64/rpi5-inmate-demo.c b/configs/arm64/rpi5-inmate-demo.c
+new file mode 100644
+index 0000000..b9eafbb
+--- /dev/null
++++ b/configs/arm64/rpi5-inmate-demo.c
+@@ -0,0 +1,55 @@
++/*
++ * Jailhouse, a Linux-based partitioning hypervisor
++ *
++ * Configuration for demo inmate on Raspberry Pi 5: 1 CPU (core 3), 64K RAM.
++ * No UART: the inmate prints through the hypervisor virtual console
++ * (read with "jailhouse console -f" in the root cell).
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ */
++
++#include <jailhouse/types.h>
++#include <jailhouse/cell-config.h>
++
++struct {
++	struct jailhouse_cell_desc cell;
++	__u64 cpus[1];
++	struct jailhouse_memory mem_regions[2];
++} __attribute__((packed)) config = {
++	.cell = {
++		.signature = JAILHOUSE_CELL_DESC_SIGNATURE,
++		.revision = JAILHOUSE_CONFIG_REVISION,
++		.architecture = JAILHOUSE_ARM64,
++		.name = "inmate-demo",
++		.flags = JAILHOUSE_CELL_PASSIVE_COMMREG |
++			 JAILHOUSE_CELL_VIRTUAL_CONSOLE_ACTIVE,
++
++		.cpu_set_size = sizeof(config.cpus),
++		.num_memory_regions = ARRAY_SIZE(config.mem_regions),
++
++		.console = {
++			.type = JAILHOUSE_CON_TYPE_NONE,
++		},
++	},
++
++	.cpus = {
++		0b1000,
++	},
++
++	.mem_regions = {
++		/* RAM */ {
++			.phys_start = 0x30000000,
++			.virt_start = 0,
++			.size = 0x00010000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_EXECUTE | JAILHOUSE_MEM_LOADABLE,
++		},
++		/* communication region */ {
++			.virt_start = 0x80000000,
++			.size = 0x00001000,
++			.flags = JAILHOUSE_MEM_READ | JAILHOUSE_MEM_WRITE |
++				JAILHOUSE_MEM_COMM_REGION,
++		},
++	},
++};
