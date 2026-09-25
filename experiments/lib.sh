@@ -39,6 +39,9 @@ check_thermal() {
 		sudo rm -f /run/thermal-abort
 	fi
 	wait_cool
+	# re-apply before every run: the kernel resets the governor to
+	# ondemand when cell create takes a CPU away from Linux
+	[ "${FIX_FREQ:-0}" = 1 ] && fix_freq
 }
 
 fix_freq() {
@@ -83,8 +86,10 @@ start_cell() {
 	jh cell load rt-bench "$JH/inmates/demos/arm64/rt-bench.bin" "${args[@]}" &&
 	jh cell start rt-bench || { log "cell start failed ($1)"; exit 1; }
 	start_logger
+	[ "${FIX_FREQ:-0}" = 1 ] && fix_freq
 	sleep 5
-	log "rt-bench cell running ($1 ${2:-})"
+	log "rt-bench cell running ($1 ${2:-}), governor" \
+	    "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)"
 }
 
 s1_idle() {	# <seconds> <repetitions>
