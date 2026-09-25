@@ -2,6 +2,7 @@
 """Draw the result figures for one campaign (after analyze.py has written runs.csv).
 
 Usage: plots.py <results-dir>
+       plots.py --compare <default-campaign> <fixed-campaign> <output-dir>
 Writes <results-dir>/figures/*.png (viewing) and *.pdf (print).
 Palette: reference data-viz palette, light mode, first three categorical slots
 (validated all-pairs for colour-vision deficiency) - one per configuration.
@@ -143,10 +144,11 @@ def end_label(ax, x, y, text, colour):
                 color=INK2, fontsize=8)
 
 
-def deadline(ax):
+def deadline(ax, left=False):
     ax.axhline(DEADLINE_US, color=INK2, linewidth=1, linestyle="--")
-    ax.annotate("100 us deadline", (1, DEADLINE_US), xycoords=("axes fraction", "data"),
-                xytext=(-2, 4), textcoords="offset points", ha="right", color=INK2, fontsize=8)
+    ax.annotate("100 us deadline", (0 if left else 1, DEADLINE_US), xycoords=("axes fraction", "data"),
+                xytext=(2 if left else -2, 4), textcoords="offset points",
+                ha="left" if left else "right", color=INK2, fontsize=8)
 
 
 def main_s3(res, cfg):
@@ -252,6 +254,35 @@ def fig_s4(res, out):
     save(fig, out, "s4_unixbench")
 
 
+def fig_compare(res_a, res_b, out):
+    """Default (ondemand) vs fixed-frequency campaign, S3 per load."""
+    loads = ["idle", "cache", "stream", "vm"]
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), sharey=True)
+    for ax, (cfg, title) in zip(axes, (("plain", CONFIGS[0][1]), ("colhog", CONFIGS[2][1]))):
+        for i, (res, label, colour) in enumerate(((res_a, "default frequency (ondemand)", INK2),
+                                                  (res_b, "fixed 2.4 GHz", CONFIGS[0][2]))):
+            rows = main_s3(res, cfg)
+            xs, ys = [], []
+            for g, load in enumerate(loads):
+                if (c := combined(rows, load=load)):
+                    xs.append(g + (i - 0.5) * 0.36)
+                    ys.append(c["exe_avg_ns"] / 1000)
+            ax.bar(xs, ys, width=0.36, color=colour, label=label, edgecolor=SURFACE, linewidth=1)
+            for x, y in zip(xs, ys):
+                ax.annotate(f"{y:.0f}", (x, y), xytext=(0, 2), textcoords="offset points",
+                            ha="center", color=INK2, fontsize=7)
+        deadline(ax, left=True)
+        ax.set_xticks(range(len(loads)), loads)
+        ax.set_xlabel("Root-cell load (3 cores)")
+        ax.set_title(title, loc="left")
+    axes[0].set_ylabel("Control task time (avg, us)")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.08))
+    fig.suptitle("S3 at default vs fixed CPU frequency", x=0.01, y=1.02, ha="left",
+                 fontweight="bold")
+    save(fig, out, "compare_frequency")
+
+
 def main(res):
     runs = {d: read_runs(res / d) for d, _, _ in CONFIGS}
     out = res / "figures"
@@ -262,4 +293,8 @@ def main(res):
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1]))
+    if len(sys.argv) == 5 and sys.argv[1] == "--compare":
+        # plots.py --compare <default-campaign> <fixed-campaign> <output-dir>
+        fig_compare(Path(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4]))
+    else:
+        main(Path(sys.argv[1]))
