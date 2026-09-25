@@ -13,7 +13,21 @@ NLOAD=${NLOAD:-3}
 OUT=
 
 log()  { echo "$(date '+%F %T') $*"; }
-mark() { echo "$EPOCHREALTIME $*" >> "$OUT/markers.log"; }
+mark() { echo "$EPOCHREALTIME $*" >> "$OUT/markers.log"; sync "$OUT/markers.log"; }
+
+# Resume support for single runs <scenario> <load> <rep>: returns 0 (skip)
+# if the run finished before, or if it started but never ended - the board
+# hung and the watchdog reset it; such runs are marked "hang", not retried.
+already_run() {
+	local m=$OUT/markers.log
+	grep -aq " END $1 $2 $3 " "$m" 2>/dev/null && return 0
+	if grep -aqE " START $1 $2 $3\$" "$m" 2>/dev/null; then
+		mark END "$1" "$2" "$3" hang
+		log "$1 $2 rep $3 hung the board earlier, skipping"
+		return 0
+	fi
+	return 1
+}
 temp() { cat /sys/class/thermal/thermal_zone0/temp; }
 wait_cool() { while [ "$(temp)" -gt 60000 ]; do sleep 5; done; }
 check_thermal() {
@@ -89,6 +103,7 @@ loads_run() {
 	shift 3
 	for r in $(seq 1 "$reps"); do
 		for load in "$@"; do
+			already_run "$tag" "$load" "$r" && continue
 			check_thermal
 			mark START "$tag" "$load" "$r"
 			run_load "$load" "$secs"; rc=$?
@@ -105,6 +120,7 @@ s3_hw() {	# <repetitions> <seconds>
 s2_stressors() {	# 100 stressors x 30 s, as in the thesis
 	local s rc
 	while read -r s; do
+		already_run s2 "$s" 1 && continue
 		check_thermal
 		mark START s2 "$s" 1
 		timeout 45 stress-ng --"$s" "$NLOAD" --taskset "$ROOT_CPUS" --timeout 30s \

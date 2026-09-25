@@ -23,7 +23,7 @@ PERIODS_PER_WINDOW = 1000
 
 def load_windows(path):
     windows = []
-    for line in path.read_text(errors="replace").splitlines():
+    for line in path.read_text(errors="replace").replace("\x00", "").splitlines():
         m = W_RE.match(line)
         if m:
             windows.append({k: float(v) for k, v in m.groupdict().items()})
@@ -32,7 +32,7 @@ def load_windows(path):
 
 def load_runs(path):
     runs, open_runs = [], {}
-    for line in path.read_text().splitlines():
+    for line in path.read_text(errors="replace").replace("\x00", "").splitlines():
         parts = line.split()
         if len(parts) < 5 or parts[1] not in ("START", "END"):
             continue
