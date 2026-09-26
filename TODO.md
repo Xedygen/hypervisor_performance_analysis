@@ -1,6 +1,6 @@
 # Pi 5 Jailhouse port — status and TODO
 
-Last updated 2026-09-25. Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
+Last updated 2026-09-26. Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
 
 ## Where it stands
 
@@ -57,8 +57,8 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
 
 ## Next steps
 
-1. [ ] Put the numbers and figures into the write-up (Pi 4 vs Pi 5), and describe `rt-bench` (bare-metal,
-   replaces cyclictest) and `colorhog` (root side of the colour partition) in the method section.
+1. [ ] Write-up: add the Pi 5 numbers and figures, and describe
+   `rt-bench` (bare-metal, replaces cyclictest) and `colorhog` (root side of the colour partition).
 2. [ ] Debug the board hangs with a USB-TTL adapter (3.3 V) on the SoC debug UART (PL011 `0x107d001000`,
    3-pin JST connector), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the
    interesting cases. Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
@@ -115,7 +115,7 @@ sudo ./tools/jailhouse enable configs/arm64/rpi5.cell
   Kbuild `always` → `always-y`, stdarg shims, QoS no-platform fallback, MemGuard BCM2712 section
   (`CONFIG_MACH_RPI5`: PMU IRQs 48–51, EL2 timer IRQ 26; IRQ table bound 320 not verified),
   `configs/arm64/rpi5.c` and `rpi5-inmate-demo.c`.
-- `raspberrypi-linux/` (own git, branch `jailhouse-6.6`, uncommitted), `build/`, `third_party/` are local only,
-  not in this repo.
+- Local only, not in this repo: `raspberrypi-linux/` (own git, branch `jailhouse-6.6`, uncommitted),
+  `build/` and `third_party/`.
 - SD card: `sdcard/flash_sd.sh` fills the password hash and SSH key into `sdcard/firstboot/user-data`
   at flash time; the password stays in `sdcard/firstboot/.pi-password` (not in the repo).

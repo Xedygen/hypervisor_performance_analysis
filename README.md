@@ -14,4 +14,4 @@ Current status and next steps: [TODO.md](TODO.md).
 | `results/` | Measurement results per scenario (empty until experiments run). |
 
 Not in the repo (local only): `raspberrypi-linux/` (kernel source, own git), `build/`, `third_party/`
-(original zips, upstream Jailhouse), the SD image.
+(original zips, upstream Jailhouse) and the SD image.
