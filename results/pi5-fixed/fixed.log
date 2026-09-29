@@ -1,0 +1,149 @@
+2026-09-25 15:55:56 fixed-frequency campaign start, temp 39150
+2026-09-25 15:55:56 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 15:56:02 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 16:29:39 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 16:29:45 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 16:53:21 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 16:53:27 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 16:53:29 colorhog: holding 127 MB in colours 24-31 (returned 384 MB), MemAvailable 448 MB
+2026-09-25 18:11:02 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 18:11:08 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 19:06:24 fixed-frequency campaign start, temp 40800
+2026-09-25 19:06:24 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 19:06:30 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 19:06:30 skip s1 (done)
+2026-09-25 19:06:30 skip s3 (done)
+2026-09-25 19:06:30 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 19:06:36 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 19:06:36 skip s1 (done)
+2026-09-25 19:06:36 skip s3 (done)
+2026-09-25 19:06:36 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 19:06:43 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 19:06:45 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 452 MB
+2026-09-25 19:06:45 skip s1 (done)
+2026-09-25 19:06:45 skip s3 (done)
+2026-09-25 19:06:45 skip s2 (done)
+2026-09-25 19:06:47 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 19:06:53 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 19:06:53 s2 opcode rep 1 hung the board earlier, skipping
+2026-09-25 20:05:40 extras start, temp 54000
+2026-09-25 20:05:40 === config extra-e1-col8 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:05:46 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 20:05:49 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 448 MB
+2026-09-25 20:14:07 === config extra-e1-col12 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:14:14 rt-bench cell running (rpi5-rtbench-col12 ), governor performance
+2026-09-25 20:14:16 colorhog: holding 190 MB in colours 20-31 (returned 321 MB), MemAvailable 387 MB
+2026-09-25 20:22:34 === config extra-e1-col16 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:22:41 rt-bench cell running (rpi5-rtbench-col16 ), governor performance
+2026-09-25 20:22:43 colorhog: holding 256 MB in colours 16-31 (returned 255 MB), MemAvailable 321 MB
+2026-09-25 20:32:32 fixed-frequency campaign start, temp 41350
+2026-09-25 20:32:32 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:32:38 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 20:32:38 skip s1 (done)
+2026-09-25 20:32:38 skip s3 (done)
+2026-09-25 20:32:38 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:32:45 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 20:32:45 skip s1 (done)
+2026-09-25 20:32:45 skip s3 (done)
+2026-09-25 20:32:45 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:32:51 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 20:32:53 colorhog: holding 127 MB in colours 24-31 (returned 384 MB), MemAvailable 456 MB
+2026-09-25 20:32:53 skip s1 (done)
+2026-09-25 20:32:53 skip s3 (done)
+2026-09-25 20:32:53 skip s2 (done)
+2026-09-25 20:32:55 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:33:01 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 20:33:01 skip s2 (done)
+2026-09-25 20:33:01 skip s4 (done)
+2026-09-25 20:33:01 extras start, temp 42450
+2026-09-25 20:33:01 === config extra-e1-col8 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:33:08 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 20:33:10 colorhog: holding 125 MB in colours 24-31 (returned 386 MB), MemAvailable 448 MB
+2026-09-25 20:33:10 skip e1 (done)
+2026-09-25 20:33:12 === config extra-e1-col12 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:33:18 rt-bench cell running (rpi5-rtbench-col12 ), governor performance
+2026-09-25 20:33:20 colorhog: holding 188 MB in colours 20-31 (returned 323 MB), MemAvailable 392 MB
+2026-09-25 20:33:20 skip e1 (done)
+2026-09-25 20:33:22 === config extra-e1-col16 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:33:29 rt-bench cell running (rpi5-rtbench-col16 ), governor performance
+2026-09-25 20:33:31 colorhog: holding 254 MB in colours 16-31 (returned 257 MB), MemAvailable 326 MB
+2026-09-25 20:33:31 e1 vm rep 2 hung the board earlier, skipping
+2026-09-25 20:33:33 === config extra-e2-ws256-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:33:39 rt-bench cell running (rpi5-rtbench ws-kb=256), governor performance
+2026-09-25 20:36:45 === config extra-e2-ws256-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:36:52 rt-bench cell running (rpi5-rtbench-col ws-kb=256), governor performance
+2026-09-25 20:36:54 colorhog: holding 127 MB in colours 24-31 (returned 384 MB), MemAvailable 454 MB
+2026-09-25 20:40:02 === config extra-e2-ws512-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:40:08 rt-bench cell running (rpi5-rtbench ws-kb=512), governor performance
+2026-09-25 20:43:14 === config extra-e2-ws512-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:43:21 rt-bench cell running (rpi5-rtbench-col ws-kb=512), governor performance
+2026-09-25 20:43:23 colorhog: holding 125 MB in colours 24-31 (returned 386 MB), MemAvailable 453 MB
+2026-09-25 20:46:31 === config extra-e2-ws1024-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:46:37 rt-bench cell running (rpi5-rtbench ws-kb=1024), governor performance
+2026-09-25 20:49:44 === config extra-e2-ws1024-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 20:49:50 rt-bench cell running (rpi5-rtbench-col ws-kb=1024), governor performance
+2026-09-25 20:49:52 colorhog: holding 126 MB in colours 24-31 (returned 385 MB), MemAvailable 454 MB
+2026-09-25 20:53:00 === config extra-e3-2c-plain (root CPUs 0-1, 2 load instances, governor performance, 2400 MHz)
+2026-09-25 20:53:07 rt-bench cell running (rpi5-rtbench-2c ), governor performance
+2026-09-25 21:03:37 fixed-frequency campaign start, temp 40800
+2026-09-25 21:03:37 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:03:43 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 21:03:43 skip s1 (done)
+2026-09-25 21:03:43 skip s3 (done)
+2026-09-25 21:03:43 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:03:50 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 21:03:50 skip s1 (done)
+2026-09-25 21:03:50 skip s3 (done)
+2026-09-25 21:03:50 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:03:56 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 21:03:58 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 450 MB
+2026-09-25 21:03:58 skip s1 (done)
+2026-09-25 21:03:58 skip s3 (done)
+2026-09-25 21:03:58 skip s2 (done)
+2026-09-25 21:04:00 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:06 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-09-25 21:04:06 skip s2 (done)
+2026-09-25 21:04:06 skip s4 (done)
+2026-09-25 21:04:06 extras start, temp 41900
+2026-09-25 21:04:06 === config extra-e1-col8 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:13 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-09-25 21:04:15 colorhog: holding 127 MB in colours 24-31 (returned 384 MB), MemAvailable 453 MB
+2026-09-25 21:04:15 skip e1 (done)
+2026-09-25 21:04:17 === config extra-e1-col12 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:23 rt-bench cell running (rpi5-rtbench-col12 ), governor performance
+2026-09-25 21:04:25 colorhog: holding 187 MB in colours 20-31 (returned 324 MB), MemAvailable 387 MB
+2026-09-25 21:04:25 skip e1 (done)
+2026-09-25 21:04:27 === config extra-e1-col16 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:33 rt-bench cell running (rpi5-rtbench-col16 ), governor performance
+2026-09-25 21:04:36 colorhog: holding 257 MB in colours 16-31 (returned 254 MB), MemAvailable 322 MB
+2026-09-25 21:04:36 skip e1 (done)
+2026-09-25 21:04:38 === config extra-e2-ws256-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:44 rt-bench cell running (rpi5-rtbench ws-kb=256), governor performance
+2026-09-25 21:04:44 skip e2 (done)
+2026-09-25 21:04:44 === config extra-e2-ws256-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:04:50 rt-bench cell running (rpi5-rtbench-col ws-kb=256), governor performance
+2026-09-25 21:04:52 colorhog: holding 125 MB in colours 24-31 (returned 386 MB), MemAvailable 453 MB
+2026-09-25 21:04:52 skip e2 (done)
+2026-09-25 21:04:54 === config extra-e2-ws512-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:05:00 rt-bench cell running (rpi5-rtbench ws-kb=512), governor performance
+2026-09-25 21:05:00 skip e2 (done)
+2026-09-25 21:05:00 === config extra-e2-ws512-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:05:07 rt-bench cell running (rpi5-rtbench-col ws-kb=512), governor performance
+2026-09-25 21:05:09 colorhog: holding 127 MB in colours 24-31 (returned 384 MB), MemAvailable 448 MB
+2026-09-25 21:05:09 skip e2 (done)
+2026-09-25 21:05:11 === config extra-e2-ws1024-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:05:17 rt-bench cell running (rpi5-rtbench ws-kb=1024), governor performance
+2026-09-25 21:05:17 skip e2 (done)
+2026-09-25 21:05:17 === config extra-e2-ws1024-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 21:05:23 rt-bench cell running (rpi5-rtbench-col ws-kb=1024), governor performance
+2026-09-25 21:05:25 colorhog: holding 124 MB in colours 24-31 (returned 387 MB), MemAvailable 450 MB
+2026-09-25 21:05:25 skip e2 (done)
+2026-09-25 21:05:27 === config extra-e3-2c-plain (root CPUs 0-1, 2 load instances, governor performance, 2400 MHz)
+2026-09-25 21:05:34 rt-bench cell running (rpi5-rtbench-2c ), governor performance
+2026-09-25 21:05:34 e3 vm rep 2 hung the board earlier, skipping
+2026-09-25 21:06:36 === config extra-e3-2c-colhog (root CPUs 0-1, 2 load instances, governor performance, 2400 MHz)
+2026-09-25 21:06:42 rt-bench cell running (rpi5-rtbench-2c-col ), governor performance
+2026-09-25 21:06:44 colorhog: holding 126 MB in colours 24-31 (returned 385 MB), MemAvailable 439 MB
+2026-09-25 21:17:06 extras done, temp 42450
+2026-09-25 21:17:06 === config bare (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-09-25 22:13:11 fixed-frequency campaign done, temp 54000
