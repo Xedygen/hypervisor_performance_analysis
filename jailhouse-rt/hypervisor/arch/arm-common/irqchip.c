@@ -433,10 +433,11 @@ static int irqchip_cell_init(struct cell *cell)
 	}
 	/*
 	 * Permit direct access to all SGIs and PPIs except for those used by
-	 * the hypervisor.
+	 * the hypervisor. Linux clears all PPI enables when it onlines a CPU,
+	 * which would silently switch off the MemGuard period timer.
 	 */
 	cell->arch.irq_bitmap[0] = ~((1 << SGI_INJECT) | (1 << SGI_EVENT) |
-				     (1 << mnt_irq));
+				     (1 << mnt_irq) | (1 << MEMGUARD_TIMER_IRQ));
 
 	err = irqchip.cell_init(cell);
 	if (err)

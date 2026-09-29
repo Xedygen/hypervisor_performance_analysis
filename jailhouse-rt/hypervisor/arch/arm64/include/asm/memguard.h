@@ -19,6 +19,10 @@
 #include <asm/percpu.h>
 #include <jailhouse/memguard-common.h>
 
+/* EL2 physical timer (CNTHP), PPI 10, on every supported SoC. Owned by the
+ * hypervisor: cells must not disable it, or a throttled CPU never resumes. */
+#define MEMGUARD_TIMER_IRQ	26
+
 void memguard_init(u8 local_irq_target);
 void memguard_suspend(void);
 void memguard_exit(void);

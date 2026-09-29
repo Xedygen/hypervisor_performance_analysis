@@ -38,7 +38,6 @@
  *   64 next IDs are local SPI, generated inside CCPLEX and for CCPLEX use only
  */
 #define CCPLEX_IRQ_SIZE			384
-#define MEMGUARD_TIMER_IRQ		26
 
 /* Conversion from cpu_id to PMU IRQ number
  *
@@ -74,7 +73,6 @@ static const int mach_cpu_id2irqn[6] = {
  ------ Total = 208
 */
 #define CCPLEX_IRQ_SIZE			208
-#define MEMGUARD_TIMER_IRQ		26 /* Non-secure physical timer */
 
 static const int mach_cpu_id2irqn[4] = {
     195,
@@ -100,7 +98,6 @@ static const int mach_cpu_id2irqn[4] = {
  ------ Total = 188
 */
 #define CCPLEX_IRQ_SIZE			188
-#define MEMGUARD_TIMER_IRQ		26 /* Non-secure physical timer */
 
 static const int mach_cpu_id2irqn[4] = {
     175,
@@ -122,7 +119,6 @@ static const int mach_cpu_id2irqn[4] = {
 /* Upper bound for the priority loop; GIC writes beyond the implemented
  * ITLinesNumber are RAZ/WI. Highest hwirq seen in /proc/interrupts is 282. */
 #define CCPLEX_IRQ_SIZE			320
-#define MEMGUARD_TIMER_IRQ		26 /* EL2 hyp timer, PPI 10 */
 
 /* arm-pmu in bcm2712.dtsi: GIC_SPI 16..19, one per core */
 static const int mach_cpu_id2irqn[4] = {
@@ -423,7 +419,8 @@ void memguard_block_if_needed(void)
 
 		arm_read_sysreg(ELR_EL2, elr);
 		arm_read_sysreg(SPSR_EL2, spsr);
-		asm volatile("msr daifclr, #3" : : : "memory"); /* enable IRQs and FIQs */
+		/* IRQs only: EL2 has no FIQ vector, an FIQ here would spin forever */
+		asm volatile("msr daifclr, #2" : : : "memory");
 		
 		/*
 		 * This loop should be race-free. When the timer IRQ
@@ -435,7 +432,7 @@ void memguard_block_if_needed(void)
 			asm volatile("wfe");
 		
 			
-		asm volatile("msr daifset, #3" : : : "memory"); /* disable IRQs and FIQs */
+		asm volatile("msr daifset, #2" : : : "memory"); /* disable IRQs */
 		arm_write_sysreg(ELR_EL2, elr);
 		arm_write_sysreg(SPSR_EL2, spsr);
 	}
@@ -624,10 +621,10 @@ void memguard_exit()
 	memguard_pmu_irq_disable(this_cpu_id());
 	memguard_timer_irq_disable();
 
-	/* Make the memguard counter visible again to non-secure mode */
+	/* Give all counters back to EL1/EL0 (HPMN = PMCR_EL0.N) */
 	arm_read_sysreg(MDCR_EL2, reg32);
-	reg32 &= ~(MDCR_EL2_HPMN_MASK);
-	reg32 |= MDCR_EL2_HPME + PMU_INDEX - 1;
+	reg32 &= ~(MDCR_EL2_HPMN_MASK | MDCR_EL2_HPME);
+	reg32 |= PMU_INDEX + 1;
 	arm_write_sysreg(MDCR_EL2, reg32);
 }
 
