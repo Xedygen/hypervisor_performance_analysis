@@ -1,6 +1,7 @@
 # Pi 5 Jailhouse port — status and TODO
 
 Last updated 2026-09-29. Board is powered off; steps below are tagged *offline* or *needs Pi*.
+Offline work done 2026-09-29 (MemGuard fix, Zephyr guest, SD card kit) is built but untested on the board.
 Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
 
 ## Where it stands
@@ -75,9 +76,13 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
    b. Destroy and re-create the rt-bench cell (CPU 3 goes through Linux), then `... 0 1000 20000`.
    c. Full E4: `MEMGUARD=1 experiments/pi_extra.sh` (needed for the `stream`/DRAM case).
 4. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1 per config).
-5. [ ] *offline build, Pi to run* Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
-   `0x107fff9000`/`0x107fffa000`, plus a console driver using the Jailhouse debug-putc hypercall
-   (`hvc #0x4a48`, x0 = 8, x1 = char).
+5. [ ] *needs Pi* Zephyr guest. Built 2026-09-29, not yet run: `zephyr/rpi5-jailhouse.overlay` + `.conf` on top of
+   upstream `rpi_5` (RAM identity-mapped at 0x30000000, GIC only, console through Zephyr's
+   `CONFIG_JAILHOUSE_DEBUG_CONSOLE`), cell `configs/arm64/rpi5-zephyr.c` (CPU 3, 8 MB, reset address
+   0x30000000), and `zephyr/rt-bench` (rt-bench as a Zephyr thread, same `W` line; `lat` now includes the
+   Zephyr scheduler). Build: `scripts/build_zephyr.sh [app] [-DRTB_WS_KB=512 ...]`. On the Pi: try
+   `hello_world` first, then rt-bench; afterwards add coloured variants of the cell and a `ZEPHYR=1`
+   switch in `experiments/lib.sh start_cell`.
 6. [ ] *offline design* Proper root-cell colouring instead of colorhog (jailhouse-rt can colour the root cell; needs more
    RAM than 1 GB leaves).
 7. [ ] *flash to verify* SD card kit: cloud-init's package install partly failed on first boot (git,
@@ -126,6 +131,6 @@ sudo ./tools/jailhouse enable configs/arm64/rpi5.cell
   (`CONFIG_MACH_RPI5`: PMU IRQs 48–51, EL2 timer IRQ 26; IRQ table bound 320 not verified),
   `configs/arm64/rpi5.c` and `rpi5-inmate-demo.c`.
 - Local only, not in this repo: `raspberrypi-linux/` (own git, branch `jailhouse-6.6`, uncommitted),
-  `build/` and `third_party/`.
+  `build/` and `third_party/` (includes the Zephyr clone and its Python venv).
 - SD card: `sdcard/flash_sd.sh` fills the password hash and SSH key into `sdcard/firstboot/user-data`
   at flash time; the password stays in `sdcard/firstboot/.pi-password` (not in the repo).
