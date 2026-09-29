@@ -572,26 +572,22 @@ int jailhouse_cmd_cell_memguard(struct jailhouse_memguard_args __user *arg)
 	mg_args = kmalloc(sizeof(struct jailhouse_memguard_args), GFP_USER | __GFP_NOWARN);
 	if (!mg_args)
 		return -ENOMEM;
-	
+
+	err = -EFAULT;
 	if (copy_from_user(mg_args, arg, sizeof(struct jailhouse_memguard_args)))
-		return -EFAULT;
-	
+		goto out_free;
+
 	err = cell_management_prologue(&mg_args->cell_id, &cell);
 	if (err)
-		return err;
+		goto out_free;
 
 	err = memguard_call(cell, mg_args);
-
-	kfree(mg_args);
-	
-	if (err) {
+	if (err)
 		pr_err("Jailhouse: unable to set memguard parameters for cell \"%s\"\n",
 		       cell->name);
-		return err;
-	}
-	
-	mutex_unlock(&jailhouse_lock);
 
+	mutex_unlock(&jailhouse_lock);
+out_free:
+	kfree(mg_args);
 	return err;
-	
 }
