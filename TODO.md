@@ -74,9 +74,9 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
    (`hvc #0x4a48`, x0 = 8, x1 = char).
 6. [ ] *offline design* Proper root-cell colouring instead of colorhog (jailhouse-rt can colour the root cell; needs more
    RAM than 1 GB leaves).
-7. [ ] *offline fix, flash to verify* Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
-   rt-tests, linux-perf, python3-mako, tmux were missing and were installed by hand). Probably apt
-   ran before the network was fully up; check `/var/log/cloud-init-output.log` on a fresh flash.
+7. [ ] *flash to verify* SD card kit: cloud-init's package install partly failed on first boot (git,
+   stress-ng, rt-tests, linux-perf, python3-mako, tmux were missing). Fixed 2026-09-29: apt now runs from
+   `runcmd` and retries until the mirrors answer (log `/var/log/firstboot-apt.log`); confirm on a fresh flash.
 8. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware PSCI
    CPU_ON fails); bare-Linux reference runs therefore go last or should boot with `maxcpus=3`.
 

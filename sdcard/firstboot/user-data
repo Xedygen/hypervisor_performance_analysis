@@ -24,24 +24,21 @@ rpi:
     serial: true
 
 # Needs internet at first boot (host shares Wi-Fi over enp5s0 via NM "rpi5-share").
-# Upgrade first so linux-headers-rpi-v8 matches the running kernel after the reboot below.
-package_update: true
-package_upgrade: true
-packages:
-  - avahi-daemon
-  - build-essential
-  - git
-  - device-tree-compiler
-  - linux-headers-rpi-v8
-  - python3-mako
-  - rt-tests
-  - stress-ng
-  - linux-perf
-  - htop
-  - tmux
-
+# Installed from runcmd, not cloud-init's packages module: that one ran before the
+# network was up on the first flash and left half the list missing. Here apt is
+# retried until the mirrors answer. Upgrade first so linux-headers-rpi-v8 matches
+# the running kernel after the reboot below. Log: /var/log/firstboot-apt.log
 runcmd:
   - [systemctl, enable, --now, ssh]
+  - |
+    exec >>/var/log/firstboot-apt.log 2>&1
+    export DEBIAN_FRONTEND=noninteractive
+    apt="apt-get -y -o DPkg::Lock::Timeout=600 -o APT::Update::Error-Mode=any"
+    retry() { for i in $(seq 30); do "$@" && return 0; echo "retry $i: $*"; sleep 10; done; return 1; }
+    retry $apt update
+    retry $apt full-upgrade
+    retry $apt install avahi-daemon build-essential git device-tree-compiler \
+      linux-headers-rpi-v8 python3-mako rt-tests stress-ng linux-perf htop tmux
 
 power_state:
   mode: reboot
