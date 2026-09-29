@@ -6,3 +6,6 @@
 # SD card image (downloaded, 540 MB) and the generated Pi password
 /sdcard/*.img.xz
 /sdcard/firstboot/.pi-password
+
+# Python bytecode
+__pycache__/
