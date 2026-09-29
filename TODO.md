@@ -66,8 +66,14 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
 2. [ ] *needs Pi + USB-TTL* Debug the board hangs with a USB-TTL adapter (3.3 V) on the SoC debug UART (PL011 `0x107d001000`,
    3-pin JST connector), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the
    interesting cases. Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
-3. [ ] *offline analysis, then Pi* Fix MemGuard on BCM2712 (hangs at enable; likely the EL2 timer IRQ 26 that unblocks throttled
-   cores), then run E4 (`MEMGUARD=1 experiments/pi_extra.sh`) - needed for the `stream`/DRAM case.
+3. [ ] *needs Pi* MemGuard on BCM2712. Likely cause found and fixed 2026-09-29 (not yet run): E4 ran right
+   after E3 destroyed the 2+2 cell, so CPU 2 came back to Linux, whose `gic_cpu_init` cleared all PPI
+   enables, including the EL2 timer (PPI 26) that refills the budget. The PMU count then only grew until
+   it overflowed (~25 s at 20000) and CPU 2 blocked forever. PPI 26 is now hypervisor-only; the throttle
+   loop also no longer unmasks FIQ at EL2 (no FIQ vector). Test in this order:
+   a. `jailhouse cell memguard 0 1000 0` (timer only, never blocks), then `... 0 0 0`: board stays up.
+   b. Destroy and re-create the rt-bench cell (CPU 3 goes through Linux), then `... 0 1000 20000`.
+   c. Full E4: `MEMGUARD=1 experiments/pi_extra.sh` (needed for the `stream`/DRAM case).
 4. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1 per config).
 5. [ ] *offline build, Pi to run* Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
    `0x107fff9000`/`0x107fffa000`, plus a console driver using the Jailhouse debug-putc hypercall
