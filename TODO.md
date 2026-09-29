@@ -1,6 +1,7 @@
 # Pi 5 Jailhouse port — status and TODO
 
-Last updated 2026-09-26. Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
+Last updated 2026-09-29. Board is powered off; steps below are tagged *offline* or *needs Pi*.
+Board: Raspberry Pi 5, 1 GB, Rev 1.1 (BCM2712 D0). Guest plan: Zephyr RTOS.
 
 ## Where it stands
 
@@ -13,7 +14,8 @@ Working (2026-09-25):
 - Cache colouring: the hypervisor probes the L3 (2 MB, 16-way, 32 colours); coloured guest config
   `rpi5-rtbench-col.c` (8/32 colours).
 - Thesis experiments (S1-S4 + follow-ups) run unattended (`experiments/pi_night.sh`, `pi_extra.sh`,
-  `pi_fixed.sh`, restarted after resets by `resume.sh` from cron @reboot); results in `results/`.
+  `pi_fixed.sh`; `resume.sh` restarted them after resets from cron @reboot, since removed); results in `results/`,
+  including the raw `console.log`/`markers.log` per config, so `experiments/analyze.py` can rebuild every table.
 - Active Cooler: temperature-controlled with early trip points (40/50/57/63 C -> 100/150/200/255 PWM,
   Pi OS default is 50/60/67.5/75 C). Thermal guard service kills load at 75 C.
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
@@ -52,28 +54,30 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   `tlb-shootdown` (all with colorhog) and `vm` (8/32 colours + colorhog); fixed campaign `opcode`
   (spatial only), `vm` (16/32 + colorhog), `vm` (2+2 split, no colorhog). Most involve colorhog pinning
   memory on the 1 GB board, but two did not, and none reproduced reliably - root cause unknown.
-- MemGuard (E4) hung the board as soon as it was enabled; experiment made opt-in.
+- MemGuard (E4, budget 20000) hung the board right after `cell memguard` succeeded: the guest kept printing
+  for ~25 s, but root Linux never wrote the next marker (a `sync`), i.e. root CPUs were throttled and never
+  released. Experiment made opt-in.
 - Thermal: max 57.9 C, never throttled.
 
 ## Next steps
 
-1. [ ] Write-up: add the Pi 5 numbers and figures, and describe
+1. [ ] *offline* Write-up: add the Pi 5 numbers and figures, and describe
    `rt-bench` (bare-metal, replaces cyclictest) and `colorhog` (root side of the colour partition).
-2. [ ] Debug the board hangs with a USB-TTL adapter (3.3 V) on the SoC debug UART (PL011 `0x107d001000`,
+2. [ ] *needs Pi + USB-TTL* Debug the board hangs with a USB-TTL adapter (3.3 V) on the SoC debug UART (PL011 `0x107d001000`,
    3-pin JST connector), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the
    interesting cases. Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
-3. [ ] Fix MemGuard on BCM2712 (hangs at enable; likely the EL2 timer IRQ 26 that unblocks throttled
+3. [ ] *offline analysis, then Pi* Fix MemGuard on BCM2712 (hangs at enable; likely the EL2 timer IRQ 26 that unblocks throttled
    cores), then run E4 (`MEMGUARD=1 experiments/pi_extra.sh`) - needed for the `stream`/DRAM case.
-4. [ ] Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1 per config).
-5. [ ] Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
+4. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1 per config).
+5. [ ] *offline build, Pi to run* Zephyr guest: board overlay based on Zephyr's `rpi_5` with RAM at the cell's base, GIC-400 at
    `0x107fff9000`/`0x107fffa000`, plus a console driver using the Jailhouse debug-putc hypercall
    (`hvc #0x4a48`, x0 = 8, x1 = char).
-6. [ ] Proper root-cell colouring instead of colorhog (jailhouse-rt can colour the root cell; needs more
+6. [ ] *offline design* Proper root-cell colouring instead of colorhog (jailhouse-rt can colour the root cell; needs more
    RAM than 1 GB leaves).
-7. [ ] Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
+7. [ ] *offline fix, flash to verify* Fix the SD card kit: cloud-init's package install partly failed on first boot (git, stress-ng,
    rt-tests, linux-perf, python3-mako, tmux were missing and were installed by hand). Probably apt
    ran before the network was fully up; check `/var/log/cloud-init-output.log` on a fresh flash.
-8. [ ] CPU 3 does not come back online after a long offline period without Jailhouse (firmware PSCI
+8. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware PSCI
    CPU_ON fails); bare-Linux reference runs therefore go last or should boot with `maxcpus=3`.
 
 ## How to rebuild and redeploy
