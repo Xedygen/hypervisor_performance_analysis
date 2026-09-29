@@ -1,0 +1,57 @@
+/*
+ * Zephyr as a Jailhouse inmate on the Raspberry Pi 5, applied on top of the
+ * upstream rpi_5 board. Matches jailhouse-rt/configs/arm64/rpi5-zephyr.c:
+ * RAM is identity-mapped at 0x30000000, the GIC-400 stays at its physical
+ * addresses (Jailhouse emulates GICD and maps GICV at the GICC address).
+ * Every other device belongs to the root cell and would fault in stage 2.
+ */
+
+/delete-node/ &sram0;
+
+/ {
+	chosen {
+		zephyr,sram = &cell_ram;
+		/delete-property/ zephyr,console;
+		/delete-property/ zephyr,shell-uart;
+		/delete-property/ zephyr,pcie-controller;
+		/delete-property/ zephyr,entropy;
+	};
+
+	aliases {
+		/delete-property/ led0;
+	};
+
+	/delete-node/ leds;
+
+	soc {
+		cell_ram: memory@30000000 {
+			device_type = "memory";
+			compatible = "mmio-sram";
+			reg = <0x0 0x30000000 0x800000>;
+		};
+	};
+};
+
+&uart10 {
+	status = "disabled";
+};
+
+&gio_aon {
+	status = "disabled";
+};
+
+&gpio0_0 {
+	status = "disabled";
+};
+
+&pinctrl {
+	status = "disabled";
+};
+
+&rng {
+	status = "disabled";
+};
+
+&pcie1 {
+	status = "disabled";
+};
