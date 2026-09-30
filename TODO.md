@@ -3,8 +3,8 @@
 Open tasks only; state, results and notes are in [STATUS.md](STATUS.md). The Pi is powered off:
 tasks are tagged *offline* or *needs Pi*.
 
-1. [ ] *offline* Write-up: add the Pi 5 numbers and figures, describe `rt-bench` (replaces cyclictest)
-   and `colorhog` (root side of the colour partition).
+1. [ ] *offline, owner* Write-up: Pi 5 setup, results and discussion are drafted; still open are the title,
+   authors, abstract, checking the Pi 4 column against the thesis, the final figure set, and acknowledgments.
 2. [ ] *needs Pi* Test the MemGuard fix, in this order:
    a. `jailhouse cell memguard 0 1000 0` (timer only, never blocks), then `... 0 0 0`: board stays up.
    b. Destroy and re-create the rt-bench cell (CPU 3 goes through Linux), then `... 0 1000 20000`.
