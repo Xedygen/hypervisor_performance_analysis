@@ -1,0 +1,72 @@
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 8a0f86043..62eb5a247 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -438,6 +438,58 @@ void __init arm64_memblock_init(void)
+ 	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
+ }
+ 
++/*
++ * Keep root Linux out of the L3 colours given to a Jailhouse guest cell
++ * (Raspberry Pi 5: 2 MB 16-way L3, 32 colours of 4 KB, repeating every
++ * 128 KB). "jailhouse_colours=24-31" reserves those 4 KB slots in every
++ * 128 KB of RAM, so the page allocator never hands them out. Jailhouse cannot
++ * colour the root cell itself: Linux already runs when it is enabled.
++ * Runs after the CMA and crashkernel reservations, which need contiguous
++ * memory, and after paging_init(), so memblock can grow its reserved array.
++ * ponytail: the kernel image, early page tables and the CMA area still use
++ * the guest colours; shrink cma= if that matters.
++ */
++#define JH_COLOUR_SIZE		SZ_4K
++#define JH_COLOUR_PERIOD	(32 * JH_COLOUR_SIZE)
++
++static int jh_colour_first = -1, jh_colour_last;
++
++static int __init parse_jailhouse_colours(char *p)
++{
++	if (!p || sscanf(p, "%d-%d", &jh_colour_first, &jh_colour_last) != 2 ||
++	    jh_colour_first < 0 || jh_colour_last > 31 ||
++	    jh_colour_first > jh_colour_last) {
++		pr_err("jailhouse_colours: expected <first>-<last> in 0-31\n");
++		jh_colour_first = -1;
++		return -EINVAL;
++	}
++	return 0;
++}
++early_param("jailhouse_colours", parse_jailhouse_colours);
++
++static void __init reserve_jailhouse_colours(void)
++{
++	phys_addr_t start, end, base, s, e, total = 0;
++	u64 i;
++
++	if (jh_colour_first < 0)
++		return;
++
++	for_each_mem_range(i, &start, &end) {
++		for (base = ALIGN_DOWN(start, JH_COLOUR_PERIOD); base < end;
++		     base += JH_COLOUR_PERIOD) {
++			s = max(start, base + jh_colour_first * JH_COLOUR_SIZE);
++			e = min(end, base + (jh_colour_last + 1) * JH_COLOUR_SIZE);
++			if (s < e) {
++				memblock_reserve(s, e - s);
++				total += e - s;
++			}
++		}
++	}
++	pr_info("jailhouse_colours: reserved colours %d-%d, %llu MB\n",
++		jh_colour_first, jh_colour_last, (u64)total >> 20);
++}
++
+ void __init bootmem_init(void)
+ {
+ 	unsigned long min, max;
+@@ -481,6 +533,8 @@ void __init bootmem_init(void)
+ 	 */
+ 	reserve_crashkernel();
+ 
++	reserve_jailhouse_colours();
++
+ 	memblock_dump_all();
+ }
+ 

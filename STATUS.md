@@ -88,10 +88,13 @@ under an already running Linux (late launch). So the root side must be excluded 
 - arm64 6.6 holds 1024 early memblock memory regions (`INIT_MEMBLOCK_REGIONS * 8`) and 128+NR_CPUS+1
   reserved ones, `/reserved-memory` only 64 (`MAX_RESERVED_REGIONS`), and arm64 has no `memmap=`.
   A DT or command-line list therefore does not fit.
-- Plan: small kernel patch, early param `jailhouse_colours=<first>-<last>`; after `paging_init()`
+- Implemented (not yet booted) in `patches/linux-rpi-6.6-jailhouse-colours.patch`: early param
+  `jailhouse_colours=<first>-<last>`; after `paging_init()`
   (which calls `memblock_allow_resize()`, `arch/arm64/mm/mmu.c`) and before memblock hands pages to the
   buddy allocator, `memblock_reserve()` every guest-colour range inside the root RAM. The reserved
-  array then grows as needed. Pages stay in the linear map but are never allocated.
+  array then grows as needed. Pages stay in the linear map but are never allocated. It runs after the CMA
+  reservation (CMA needs contiguous memory), so the kernel image, early page tables and the CMA area still
+  touch the guest colours; shrink `cma=` if that shows up in the L3 refills.
 - DMA and the page cache follow automatically; nothing changes in Jailhouse. colorhog becomes unnecessary,
   and the guest configs keep their colours. Validate with `/proc/iomem`, `MemTotal` (~576 MB), and
   L3 refills of the coloured guest under `cache` load (colorhog numbers as the baseline).
@@ -126,7 +129,8 @@ sudo ./tools/jailhouse enable configs/arm64/rpi5.cell
 
 ## Kernel / jailhouse-rt changes
 
-- Kernel: `patches/linux-rpi-6.6-jailhouse-exports.patch` (apply to raspberrypi/linux `rpi-6.6.y` at 6.6.78):
+- Kernel: `patches/linux-rpi-6.6-jailhouse-colours.patch` (root-cell colour reservation, see above) and
+  `patches/linux-rpi-6.6-jailhouse-exports.patch` (apply to raspberrypi/linux `rpi-6.6.y` at 6.6.78):
   export `ioremap_page_range`, `__get_vm_area_caller`,
   `__hyp_stub_vectors`; new `ioremap_page_range_exec()` (plain `ioremap_page_range` forces NX, which
   crashed the first `enable` with an instruction abort in the hypervisor entry).
