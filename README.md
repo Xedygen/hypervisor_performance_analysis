@@ -3,7 +3,7 @@
 Port of a Jailhouse-based mixed-criticality setup (static partitioning + L2 cache colouring, from a
 Raspberry Pi 4 MS thesis) to the Raspberry Pi 5 (BCM2712, Cortex-A76, shared L3). Guest: Zephyr RTOS.
 
-Current status and next steps: [TODO.md](TODO.md).
+Status and notes: [STATUS.md](STATUS.md). Open tasks: [TODO.md](TODO.md).
 
 | Path | What |
 |---|---|

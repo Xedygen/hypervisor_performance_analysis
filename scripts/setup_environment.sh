@@ -65,7 +65,7 @@ done
 
 # ---------------------------------------------------------------------------
 # 2. raspberrypi/linux (device-tree source + base of the patched root-cell
-#    kernel, branch jailhouse-6.6; see install_kernel.sh and TODO.md)
+#    kernel, branch jailhouse-6.6; see install_kernel.sh and STATUS.md)
 # ---------------------------------------------------------------------------
 echo
 if [ -d "$PROJECT_DIR/raspberrypi-linux/.git" ]; then
@@ -131,4 +131,4 @@ find "$PROJECT_DIR" -maxdepth 2 -mindepth 1 | sort | sed "s|$PROJECT_DIR|.|"
 echo
 echo "Next: see the project guide Phase 1 onward (flashing Raspberry Pi OS Lite,"
 echo "the mem= carve-out, and the rpi5.c root cell config)."
-echo "Current status and next steps: TODO.md."
+echo "Status: STATUS.md, open tasks: TODO.md."
