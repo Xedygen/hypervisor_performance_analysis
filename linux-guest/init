@@ -1,0 +1,14 @@
+#!/bin/busybox sh
+# /init of the Linux guest cell: cyclictest in windows of ct_secs (default 10 s),
+# one summary line per window on the Jailhouse console.
+/bin/busybox --install -s /bin
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null
+mkdir -p /dev/shm && mount -t tmpfs tmpfs /dev/shm
+secs=$(sed -n 's/.*ct_secs=\([0-9]*\).*/\1/p' /proc/cmdline)
+echo "linux-guest: $(uname -r), cyclictest windows of ${secs:-10} s"
+while :; do
+	# stderr off: only the summary line goes to the (hypercall) console
+	cyclictest -m -p 95 -i 1000 -D "${secs:-10}" -q 2>/dev/null
+done
