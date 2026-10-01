@@ -32,7 +32,9 @@ Pi 5 bugs found and fixed:
 
 MemGuard fix verified on the board 2026-10-02. PREEMPT_RT Linux guest (`linux-guest/`, cells
 `rpi5-linux-demo`/`rpi5-linux-col`) boots and runs cyclictest (idle: min 1, avg 2, max 5-15 us);
-`experiments/pi_linux.sh` runs S1/S3 with it. Zephyr guest and SD card retry not yet tested.
+`experiments/pi_linux.sh` runs S1/S3 with it. Zephyr guest boots too (2026-10-02): `hello_world` and
+`zephyr/rt-bench` (idle: wake-up latency avg 0.89 us, max 2.1 us, scheduler included; control task avg
+~20 us vs 13.9 us bare-metal, not yet explained). SD card retry not yet tested.
 
 ## Results so far (2026-09-25)
 
