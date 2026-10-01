@@ -63,6 +63,11 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   89 % -> 0.6 %, `stream` 100 % -> 0 %, `vm` 92 % -> 2.8 % (`figures/e4_memguard`). Spatial isolation
   alone at 1000: `cache` 5.4 %, `vm` 36 %, `stream` 84 %. Cost: the root's `cache` stressor drops to
   ~8 % of its throughput at 1000 (79 % at 20000).
+- **Linux guest with cyclictest (2026-10-02, fixed 2.4 GHz, `results/pi5-linux/`)**: 1 kHz, priority 95,
+  S1 300 s + S3 60 s per load, 1 run each. No sample above 100 us in any config. Idle max 11-18 us;
+  root load raises the max to 63 us (`cache`), 54 us (`stream`), 79 us (`vm`) with spatial isolation
+  only; with the guest+root colour partition 41/51/64 us. cyclictest's own working set is tiny, so
+  cache interference shows only in the tail, unlike the rt-bench control task.
 - Thermal: max 57.9 C, never throttled.
 
 ## Fixes waiting for a board test (2026-09-29)

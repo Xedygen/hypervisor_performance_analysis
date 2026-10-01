@@ -1,0 +1,9 @@
+2026-10-02 01:11:31 linux guest campaign start, temp 36950
+2026-10-02 01:11:31 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 01:11:37 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 01:22:49 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 01:22:55 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 01:34:07 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 01:34:13 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 01:34:15 colorhog: holding 130 MB in colours 24-31 (returned 381 MB), MemAvailable 434 MB
+2026-10-02 01:45:30 linux guest campaign done, temp 45200
