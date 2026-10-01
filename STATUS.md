@@ -98,8 +98,8 @@ under an already running Linux (late launch). So the root side must be excluded 
 - arm64 6.6 holds 1024 early memblock memory regions (`INIT_MEMBLOCK_REGIONS * 8`) and 128+NR_CPUS+1
   reserved ones, `/reserved-memory` only 64 (`MAX_RESERVED_REGIONS`), and arm64 has no `memmap=`.
   A DT or command-line list therefore does not fit.
-- Implemented (not yet booted) in `patches/linux-rpi-6.6-jailhouse-colours.patch`: early param
-  `jailhouse_colours=<first>-<last>`; after `paging_init()`
+- Implemented in `patches/linux-rpi-6.6-jailhouse-colours.patch`: early param
+  `jailhouse_colours=<first>-<last>`; in `mem_init()` (first try in `bootmem_init()` hung the boot), after `paging_init()`
   (which calls `memblock_allow_resize()`, `arch/arm64/mm/mmu.c`) and before memblock hands pages to the
   buddy allocator, `memblock_reserve()` every guest-colour range inside the root RAM. The reserved
   array then grows as needed. Pages stay in the linear map but are never allocated. It runs after the CMA

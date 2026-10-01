@@ -1,8 +1,8 @@
 diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 8a0f86043..62eb5a247 100644
+index 8a0f86043..8247d96d2 100644
 --- a/arch/arm64/mm/init.c
 +++ b/arch/arm64/mm/init.c
-@@ -438,6 +438,58 @@ void __init arm64_memblock_init(void)
+@@ -438,6 +438,60 @@ void __init arm64_memblock_init(void)
  	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
  }
  
@@ -12,10 +12,12 @@ index 8a0f86043..62eb5a247 100644
 + * 128 KB). "jailhouse_colours=24-31" reserves those 4 KB slots in every
 + * 128 KB of RAM, so the page allocator never hands them out. Jailhouse cannot
 + * colour the root cell itself: Linux already runs when it is enabled.
-+ * Runs after the CMA and crashkernel reservations, which need contiguous
-+ * memory, and after paging_init(), so memblock can grow its reserved array.
-+ * ponytail: the kernel image, early page tables and the CMA area still use
-+ * the guest colours; shrink cma= if that matters.
++ * Runs in mem_init(), right before memblock hands the free memory to the
++ * page allocator: every early allocation that needs more contiguous memory
++ * than the 96 KB between two holes (CMA, percpu areas, swiotlb) is done by
++ * then. Reserving in bootmem_init() hung the boot.
++ * ponytail: those early allocations and the kernel image still use the guest
++ * colours; shrink cma= if that matters.
 + */
 +#define JH_COLOUR_SIZE		SZ_4K
 +#define JH_COLOUR_PERIOD	(32 * JH_COLOUR_SIZE)
@@ -61,12 +63,12 @@ index 8a0f86043..62eb5a247 100644
  void __init bootmem_init(void)
  {
  	unsigned long min, max;
-@@ -481,6 +533,8 @@ void __init bootmem_init(void)
- 	 */
- 	reserve_crashkernel();
+@@ -498,6 +552,8 @@ void __init mem_init(void)
+ 
+ 	swiotlb_init(swiotlb, SWIOTLB_VERBOSE);
  
 +	reserve_jailhouse_colours();
 +
- 	memblock_dump_all();
- }
+ 	/* this will put all unused low memory onto the freelists */
+ 	memblock_free_all();
  
