@@ -227,6 +227,33 @@ def fig_extras(res, out):
     ax.set_ylim(0, 600)
     save(fig, out, "e3_core_split")
 
+    # E4 MemGuard budget: one panel per configuration, colour = load
+    budgets = [None, 20000, 5000, 1000]
+    if not any(f"e4-mg{b}-plain" in ex for b in budgets[1:]):
+        return
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), sharey=True)
+    for ax, (suffix, title) in zip(axes, (("plain", CONFIGS[0][1]),
+                                          ("colhog", CONFIGS[2][1] + " (8/32)"))):
+        for load in ["cache", "stream", "vm"]:
+            pts = []
+            for x, b in enumerate(budgets):
+                rows = main_s3(res, suffix) if b is None else ex.get(f"e4-mg{b}-{suffix}", [])
+                if (c := combined(rows, load=load)):
+                    pts.append((x, c["resp_over_pct"]))
+            if pts:  # legend, not end labels: the lines meet near 0 %
+                ax.plot(*zip(*pts), "-o", color=LOAD_COLOURS[load], linewidth=2, markersize=5,
+                        label=f"root: {load}")
+        ax.set_xticks(range(len(budgets)), ["off"] + [f"{b}" for b in budgets[1:]])
+        ax.set_xlim(-0.3, len(budgets) - 0.7)
+        ax.set_ylim(0, 105)
+        ax.set_xlabel("MemGuard budget (L2 refills per root core per ms)")
+        ax.set_title(title, loc="left")
+    axes[0].set_ylabel("Periods over the 100 us deadline (%)")
+    axes[0].legend(fontsize=8, loc="lower left")
+    fig.suptitle("E4: memory-bandwidth regulation of the root cell", x=0.01, y=1.02,
+                 ha="left", fontweight="bold")
+    save(fig, out, "e4_memguard")
+
 
 def fig_s4(res, out):
     bare = analyze.unixbench_scores(res / "bare" / "unixbench-bare.txt")

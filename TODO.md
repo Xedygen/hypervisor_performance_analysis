@@ -5,10 +5,8 @@ tasks are tagged *offline* or *needs Pi*.
 
 1. [ ] *offline, owner* Write-up: Pi 5 setup, results and discussion are drafted; still open are the title,
    authors, abstract, checking the Pi 4 column against the thesis, the final figure set, and acknowledgments.
-2. [ ] *needs Pi* Test the MemGuard fix, in this order:
-   a. `jailhouse cell memguard 0 1000 0` (timer only, never blocks), then `... 0 0 0`: board stays up.
-   b. Destroy and re-create the rt-bench cell (CPU 3 goes through Linux), then `... 0 1000 20000`.
-   c. Full E4: `MEMGUARD=1 experiments/pi_extra.sh` (needed for the `stream`/DRAM case).
+2. [ ] *needs Pi* Linux guest campaign: `results-linux` (S1+S3, started 2026-10-02 01:11) - pull, analyse,
+   compare with rt-bench and the Pi 4 cyclictest numbers; then S2 and E4 with the Linux guest.
 3. [ ] *needs Pi* Run the Zephyr guest: `scripts/build_zephyr.sh third_party/zephyr/samples/hello_world`
    first, then `zephyr/rt-bench` with cell `rpi5-zephyr.cell`, loaded at `-a 0x30000000`.
    Afterwards add coloured variants of the cell and a `ZEPHYR=1` switch in `experiments/lib.sh start_cell`.

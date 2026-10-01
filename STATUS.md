@@ -30,8 +30,9 @@ Pi 5 bugs found and fixed:
   (jailhouse-rt does not touch the register).
 - `ioremap_page_range` forces NX in 6.x; kernel patch adds `ioremap_page_range_exec`.
 
-Built 2026-09-29, not yet run on the board (Pi powered off): MemGuard fix, Zephyr guest, SD card kit
-retry. Their test steps are in TODO.md.
+MemGuard fix verified on the board 2026-10-02. PREEMPT_RT Linux guest (`linux-guest/`, cells
+`rpi5-linux-demo`/`rpi5-linux-col`) boots and runs cyclictest (idle: min 1, avg 2, max 5-15 us);
+`experiments/pi_linux.sh` runs S1/S3 with it. Zephyr guest and SD card retry not yet tested.
 
 ## Results so far (2026-09-25)
 
@@ -57,9 +58,11 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   `tlb-shootdown` (all with colorhog) and `vm` (8/32 colours + colorhog); fixed campaign `opcode`
   (spatial only), `vm` (16/32 + colorhog), `vm` (2+2 split, no colorhog). Most involve colorhog pinning
   memory on the 1 GB board, but two did not, and none reproduced reliably - root cause unknown.
-- MemGuard (E4, budget 20000) hung the board right after `cell memguard` succeeded: the guest kept printing
-  for ~25 s, but root Linux never wrote the next marker (a `sync`), i.e. root CPUs were throttled and never
-  released. Experiment made opt-in.
+- **MemGuard (E4, 2026-10-02, fixed 2.4 GHz)**: works since the PPI 26 fix, no hangs in 24 runs.
+  Budget 1000 L2 refills/core/ms with the guest+root colour partition: deadline misses under `cache`
+  89 % -> 0.6 %, `stream` 100 % -> 0 %, `vm` 92 % -> 2.8 % (`figures/e4_memguard`). Spatial isolation
+  alone at 1000: `cache` 5.4 %, `vm` 36 %, `stream` 84 %. Cost: the root's `cache` stressor drops to
+  ~8 % of its throughput at 1000 (79 % at 20000).
 - Thermal: max 57.9 C, never throttled.
 
 ## Fixes waiting for a board test (2026-09-29)

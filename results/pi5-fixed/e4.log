@@ -1,0 +1,17 @@
+2026-10-02 00:40:00 extras start, temp 40250
+2026-10-02 00:40:00 === config extra-e4-mg20000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 00:40:06 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-10-02 00:44:14 === config extra-e4-mg5000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 00:44:20 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-10-02 00:48:29 === config extra-e4-mg1000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 00:48:35 rt-bench cell running (rpi5-rtbench ), governor performance
+2026-10-02 00:52:47 === config extra-e4-mg20000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 00:52:53 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 00:52:55 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 436 MB
+2026-10-02 00:57:06 === config extra-e4-mg5000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 00:57:12 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 00:57:14 colorhog: holding 129 MB in colours 24-31 (returned 382 MB), MemAvailable 430 MB
+2026-10-02 01:01:25 === config extra-e4-mg1000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 01:01:31 rt-bench cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 01:01:33 colorhog: holding 132 MB in colours 24-31 (returned 379 MB), MemAvailable 424 MB
+2026-10-02 01:05:47 extras done, temp 43000
