@@ -7,8 +7,16 @@ mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev 2>/dev/null
 mkdir -p /dev/shm && mount -t tmpfs tmpfs /dev/shm
 secs=$(sed -n 's/.*ct_secs=\([0-9]*\).*/\1/p' /proc/cmdline)
-echo "linux-guest: $(uname -r), cyclictest windows of ${secs:-10} s"
+dl=$(sed -n 's/.*ct_deadline=\([0-9]*\).*/\1/p' /proc/cmdline)
+echo "linux-guest: $(uname -r), cyclictest windows of ${secs:-10} s, deadline ${dl:-100} us"
+# One line per window, printed after the window so it does not disturb it:
+#   L <samples> <min> <avg> <max> <over>   (us; over = samples above the deadline)
 while :; do
-	# stderr off: only the summary line goes to the (hypercall) console
-	cyclictest -m -p 95 -i 1000 -D "${secs:-10}" -q 2>/dev/null
+	cyclictest -m -p 95 -i 1000 -D "${secs:-10}" -q -h 1000 --histfile=/tmp/h \
+		>/dev/null 2>&1
+	awk -v dl="${dl:-100}" '
+		/^[0-9]/ { n += $2; if ($1 + 0 > dl) over += $2 }
+		/Min Latencies/ { mn = $4 + 0 } /Avg Latencies/ { av = $4 + 0 }
+		/Max Latencies/ { mx = $4 + 0 } /Histogram Overflows/ { n += $4; over += $4 }
+		END { print "L", n, mn, av, mx, over + 0 }' /tmp/h
 done

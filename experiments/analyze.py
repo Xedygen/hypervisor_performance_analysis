@@ -18,15 +18,29 @@ W_RE = re.compile(
     r"^(?P<t>\d+\.\d+) W \d+ lat (?P<lmin>\d+) (?P<lavg>\d+) (?P<lmax>\d+) (?P<lover>\d+) "
     r"exe (?P<emin>\d+) (?P<eavg>\d+) (?P<emax>\d+) resp (?P<rmax>\d+) (?P<rover>\d+) "
     r"pmu (?P<l2>\d+) (?P<l3>\d+) (?P<bus>\d+) (?P<inst>\d+) (?P<cyc>\d+)")
+# Linux guest (linux-guest/init): cyclictest window, in us
+L_RE = re.compile(
+    r"^(?P<t>\d+\.\d+) L (?P<n>\d+) (?P<lmin>\d+) (?P<lavg>\d+) (?P<lmax>\d+) (?P<lover>\d+)$")
 PERIODS_PER_WINDOW = 1000
 
 
 def load_windows(path):
+    """rt-bench "W" lines, or cyclictest "L" lines mapped onto the same fields
+    (no control task: response = latency, no task time or PMU counts)."""
     windows = []
     for line in path.read_text(errors="replace").replace("\x00", "").splitlines():
         m = W_RE.match(line)
         if m:
-            windows.append({k: float(v) for k, v in m.groupdict().items()})
+            windows.append({**{k: float(v) for k, v in m.groupdict().items()},
+                            "n": PERIODS_PER_WINDOW})
+            continue
+        m = L_RE.match(line)
+        if m and int(m["n"]):
+            us = {k: float(m[k]) * 1000 for k in ("lmin", "lavg", "lmax")}
+            windows.append({"t": float(m["t"]), "n": int(m["n"]), **us,
+                            "lover": float(m["lover"]), "eavg": 0.0, "emax": 0.0,
+                            "rmax": us["lmax"], "rover": float(m["lover"]),
+                            "l2": 0.0, "l3": 0.0, "bus": 0.0})
     return windows
 
 
@@ -50,9 +64,10 @@ def aggregate(windows):
     """Combine the 1-second windows of one run."""
     if not windows:
         return None
-    n = len(windows) * PERIODS_PER_WINDOW
+    n = sum(w["n"] for w in windows)
     agg = {
         "windows": len(windows),
+        "periods": n,
         "lat_min_ns": min(w["lmin"] for w in windows),
         "lat_avg_ns": sum(w["lavg"] for w in windows) / len(windows),
         "lat_max_ns": max(w["lmax"] for w in windows),
@@ -94,7 +109,7 @@ def write_csv(rows, path):
 
 def combine(rows):
     """Merge several runs (repetitions) into one line."""
-    total = sum(r["windows"] for r in rows) * PERIODS_PER_WINDOW
+    total = sum(r["periods"] for r in rows)
     wsum = lambda k: sum(r[k] * r["windows"] for r in rows) / sum(r["windows"] for r in rows)
     return {
         "runs": len(rows),

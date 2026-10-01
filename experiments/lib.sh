@@ -71,9 +71,11 @@ start_logger() {
 	sleep 1
 }
 
-# (re)start the rt-bench cell: <cell config name without .cell> [inmate command line]
+# (re)start the guest cell: <cell config name without .cell> [inmate command line]
+# rpi5-linux-* cells boot the PREEMPT_RT Linux guest (linux-guest/, Image in
+# ~/linux-guest) running cyclictest in 1 s windows; all others run rt-bench.
 start_cell() {
-	local cfg=$JH/configs/arm64/$1.cell
+	local cfg=$JH/configs/arm64/$1.cell c
 	local args=()
 	[ -n "${2:-}" ] && args=(-s "$2" -a 0x1000)
 	if [ "$(cat /sys/devices/jailhouse/enabled 2>/dev/null)" != 1 ]; then
@@ -81,14 +83,24 @@ start_cell() {
 		lsmod | grep -q '^jailhouse' || sudo insmod "$JH/driver/jailhouse.ko"
 		jh enable "$JH/configs/arm64/rpi5.cell" || { log "enable failed"; exit 1; }
 	fi
-	jh cell list | grep -q rt-bench && jh cell destroy rt-bench
-	jh cell create "$cfg" &&
-	jh cell load rt-bench "$JH/inmates/demos/arm64/rt-bench.bin" "${args[@]}" &&
-	jh cell start rt-bench || { log "cell start failed ($1)"; exit 1; }
+	for c in rt-bench linux-guest zephyr; do
+		jh cell list | grep -q " $c " && jh cell destroy "$c"
+	done
+	case $1 in
+	rpi5-linux*)
+		(cd "$JH" && sudo ./tools/jailhouse cell linux -d configs/arm64/dts/inmate-rpi5.dtb \
+			-c "console=hvc0 earlycon=jailhouse ct_secs=1 ${2:-}" "$cfg" \
+			"$HOME/linux-guest/Image" >/dev/null) ||
+			{ log "linux guest start failed ($1)"; exit 1; } ;;
+	*)
+		jh cell create "$cfg" &&
+		jh cell load rt-bench "$JH/inmates/demos/arm64/rt-bench.bin" "${args[@]}" &&
+		jh cell start rt-bench || { log "cell start failed ($1)"; exit 1; } ;;
+	esac
 	start_logger
 	[ "${FIX_FREQ:-0}" = 1 ] && fix_freq
 	sleep 5
-	log "rt-bench cell running ($1 ${2:-}), governor" \
+	log "guest cell running ($1 ${2:-}), governor" \
 	    "$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)"
 }
 
