@@ -23,6 +23,13 @@ tasks are tagged *offline* or *needs Pi*.
    under `memrate` (3 kills in 4 s, one triggered by the thermal guard's own allocation). Several earlier
    hangs were colorhog runs: memory exhaustion in the root cell is a candidate cause. Test: re-run the
    hang stressors with colorhog keeping more memory free, or watch `/proc/meminfo` during them.
+   Hang caught 2026-10-02 15:0x (Linux-guest S2, colhog, stressor 58/100, uptime 3884 s), serial log:
+   `rcu_preempt kthread timer wakeup didn't happen for 5255 jiffies ... Possible timer handling issue on
+   cpu=2`, CPU 2 idle in swapper; the kernel still printed 147 s later, then the watchdog reset it. A root
+   CPU lost its timer interrupt. Likely cause, fixed in jailhouse-rt (coalescing commit): the per-CPU
+   pending-IRQ queue held one entry per IPI and silently dropped IRQs when full; a dropped hardware IRQ
+   stays active on the GIC forever. Confirm by re-running the hang stressors (`opcode`, `vm`,
+   `tlb-shootdown`, `pipe`, `pipeherd`, the S2 tail after stressor 57) with the fix.
 5. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
 6. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
 7. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware
