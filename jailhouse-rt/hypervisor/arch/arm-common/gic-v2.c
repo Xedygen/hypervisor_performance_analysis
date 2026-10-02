@@ -318,8 +318,23 @@ static int gicv2_inject_irq(u16 irq_id, u16 sender)
 
 		/* Check that there is no overlapping */
 		lr = gicv2_read_lr(i);
-		if ((lr & GICH_LR_VIRT_ID_MASK) == irq_id)
-			return -EEXIST;
+		if ((lr & GICH_LR_VIRT_ID_MASK) != irq_id)
+			continue;
+		/*
+		 * An entry that is still pending absorbs the new interrupt, as
+		 * on the GIC. An SGI the guest is handling (active only) must
+		 * become pending again: set the pending bit (pending+active),
+		 * keeping the first sender's CPU ID - Linux ignores the SGI
+		 * source. Dropping it lost root-cell IPIs under IPI storms on
+		 * the Pi 5: smp_call_function() waited forever (soft lockup in
+		 * membarrier, RCU stalls). A hardware IRQ cannot fire again
+		 * while active, so it never takes this path.
+		 */
+		if (!(lr & GICH_LR_PENDING_BIT) && is_sgi(irq_id)) {
+			gicv2_write_lr(i, lr | GICH_LR_PENDING_BIT);
+			return 0;
+		}
+		return -EEXIST;
 	}
 
 	if (first_free == -1)
