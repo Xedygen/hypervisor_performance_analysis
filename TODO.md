@@ -23,15 +23,14 @@ tasks are tagged *offline* or *needs Pi*.
    under `memrate` (3 kills in 4 s, one triggered by the thermal guard's own allocation). Several earlier
    hangs were colorhog runs: memory exhaustion in the root cell is a candidate cause. Test: re-run the
    hang stressors with colorhog keeping more memory free, or watch `/proc/meminfo` during them.
-   Hang caught 2026-10-02 15:0x (Linux-guest S2, colhog, stressor 58/100, uptime 3884 s), serial log:
-   `rcu_preempt kthread timer wakeup didn't happen for 5255 jiffies ... Possible timer handling issue on
-   cpu=2`, CPU 2 idle in swapper; the kernel still printed 147 s later, then the watchdog reset it. A root
-   CPU lost its timer interrupt. First suspect, the per-CPU pending-IRQ queue dropping IRQs when full,
-   is fixed (coalescing commit) but NOT the cause: the same stall (`timer wakeup didn't happen ... cpu=2`,
-   again CPU 2, under `stress-ng-stack`, ~30 s after `cell create` + colorhog) recurred on the fixed
-   hypervisor at 15:16 without any queue-full warning, and recovered by itself. Always CPU 2 so far.
-   Next: when it happens, dump `/proc/interrupts` (arch_timer count per CPU) and `jailhouse cell stats`,
-   try `rcupdate.rcu_cpu_stall_ftrace_dump=1`, and check what is special about CPU 2 (MPIDR 0x200).
+   Hangs caught on the serial console 2026-10-02 (all on root CPU 2): RCU stall "timer wakeup didn't
+   happen ... cpu=2" twice (Linux-guest S2 `rmap`, hang; `stack`, recovered), then a soft lockup: CPU 2
+   186 s in `membarrier` -> `smp_call_function_many` waiting for an IPI answer, workqueues stuck on
+   CPUs 1+2, hang. Root cause found: `gicv2_inject_irq` dropped a new SGI when the same SGI ID was
+   already in a list register, also when that entry was only active (root in its IPI handler), so IPIs
+   were lost under IPI storms. Fixed 16:17 (pending bit set on the active entry) plus the pending-queue
+   coalescing. To confirm: no further stalls in the campaigns, and `experiments/pi_hangcheck.sh`
+   (stressors that hung before, 3x each) runs clean.
 5. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
 6. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
 7. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Re-run the stressors that hung the board before (S2/S3/E-runs), to check
-# the pending-IRQ coalescing fix (runs ON the Pi):
+# the lost-IPI fixes in jailhouse-rt (runs ON the Pi):
 #   FIX_FREQ=1 nohup ~/experiments/pi_hangcheck.sh ~/results-hangcheck > ~/results-hangcheck/hc.log 2>&1 &
 # Each stressor REPS times for SECS s, guest coloured 8/32 + colorhog (most
 # hangs were with colorhog), then without colorhog. A hang shows up in
@@ -10,7 +10,7 @@ RES=${1:-$HOME/results-hangcheck}
 . "$(dirname "$0")/lib.sh"
 REPS=${REPS:-3}
 SECS=${SECS:-30}
-STRESSORS="rmap opcode vm tlb-shootdown pipe pipeherd"
+STRESSORS="membarrier rmap stack opcode vm tlb-shootdown pipe pipeherd"
 mkdir -p "$RES"
 log "hang check start, temp $(temp)"
 use_config colhog

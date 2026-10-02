@@ -29,6 +29,11 @@ Working (2026-09-25):
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
 
 Pi 5 bugs found and fixed:
+- **Lost root-cell IPIs** (jailhouse-rt and upstream, 2026-10-02): `gicv2_inject_irq` dropped a new SGI when
+  a list register already held that SGI ID, even if the entry was only active (guest in its handler);
+  the GIC would make it pending again. Under IPI storms an `smp_call_function()` then waited forever:
+  the board hangs (soft lockup in `membarrier` on CPU 2, RCU stalls). Fix: set the pending bit on the
+  active entry. All runs from 2026-10-02 16:18 use it; the earlier unexplained hangs are probably this.
 - **Lost hardware IRQ when the pending queue is full** (jailhouse-rt and upstream, 2026-10-02): the per-CPU
   pending-IRQ queue stored one entry per IPI and silently dropped IRQs when full; a dropped PPI/SPI stays
   active on the physical GIC, so that CPU never gets it again. Fix: coalesce identical (irq, sender)
