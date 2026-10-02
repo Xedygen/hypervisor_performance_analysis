@@ -135,31 +135,44 @@ def fig_s3(res, runs, out):
 
 
 def fig_s2(res, runs, out):
-    plain = {r["load"]: r for r in runs.get("plain", []) if r["scenario"] == "s2"}
-    hog = {r["load"]: r for r in runs.get("colhog", []) if r["scenario"] == "s2"}
+    def per_stressor(cfg):  # all repetitions of each stressor combined
+        rows = [r for r in runs.get(cfg, []) if r["scenario"] == "s2"]
+        return {s: combined(rows, load=s) for s in {r["load"] for r in rows}}
+
+    plain, hog = per_stressor("plain"), per_stressor("colhog")
     if not plain or not hog:
         return
-    # top 20 stressors by misses in the uncoloured config (like thesis Fig. 4.7)
-    top = sorted(plain, key=lambda s: plain[s]["resp_over_pct"], reverse=True)[:20][::-1]
+    # cyclictest (Linux guest) rarely misses the deadline: rank by max latency
+    if is_cyclictest(runs):
+        metric, xlabel, title = (lambda c: c["lat_max_ns"] / 1000, "Max wake-up latency (us)",
+                                 "S2: 20 stressors with the highest cyclictest latency")
+    else:
+        metric, xlabel, title = (lambda c: c["resp_over_pct"], "Periods missing the 100 us deadline (%)",
+                                 "S2: 20 stressors with the most deadline misses")
+    # top 20 stressors in the uncoloured config (like thesis Fig. 4.7)
+    top = sorted(plain, key=lambda s: metric(plain[s]), reverse=True)[:20][::-1]
     fig, ax = plt.subplots(figsize=(6.4, 6))
     y = range(len(top))
-    ax.barh([i + 0.2 for i in y], [plain[s]["resp_over_pct"] for s in top], height=0.38,
+    ax.barh([i + 0.2 for i in y], [metric(plain[s]) for s in top], height=0.38,
             color=CONFIGS[0][2], label=CONFIGS[0][1], edgecolor=SURFACE, linewidth=1)
-    ax.barh([i - 0.2 for i in y], [hog[s]["resp_over_pct"] if s in hog else 0 for s in top],
+    ax.barh([i - 0.2 for i in y], [metric(hog[s]) if s in hog else 0 for s in top],
             height=0.38, color=CONFIGS[2][2], label=CONFIGS[2][1], edgecolor=SURFACE, linewidth=1)
     ax.set_yticks(list(y), top)
-    ax.set_xlim(0, 105)
+    if not is_cyclictest(runs):
+        ax.set_xlim(0, 105)
     ax.grid(axis="y", visible=False)
-    ax.set_xlabel("Periods missing the 100 us deadline (%)")
-    ax.set_title("S2: 20 stressors with the most deadline misses", loc="left")
+    ax.set_xlabel(xlabel)
+    ax.set_title(title, loc="left")
     ax.legend(loc="upper center", bbox_to_anchor=(0.4, -0.08), ncol=2, fontsize=8)
     save(fig, out, "s2_top_stressors")
+    if is_cyclictest(runs):  # no PMU counts in the Linux guest
+        return
 
     # thesis Fig. 4.9/4.10 analogue: miss rate against the mechanism, per stressor
     fig, ax = plt.subplots(figsize=(6.4, 4))
-    for d, lab, col in (CONFIGS[0], CONFIGS[2]):
-        rows = [r for r in runs.get(d, []) if r["scenario"] == "s2"]
-        ax.scatter([r["l3_refill_per_period"] for r in rows], [r["resp_over_pct"] for r in rows],
+    for (d, lab, col), per in ((CONFIGS[0], plain), (CONFIGS[2], hog)):
+        ax.scatter([c["l3_refill_per_period"] for c in per.values()],
+                   [c["resp_over_pct"] for c in per.values()],
                    s=22, color=col, label=lab, edgecolor=SURFACE, linewidth=0.8, alpha=0.9)
     ax.set_xlabel("Guest L3 refills per period (one dot per stressor)")
     ax.set_ylabel("Periods missing the deadline (%)")
