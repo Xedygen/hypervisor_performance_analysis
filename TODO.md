@@ -6,8 +6,8 @@ tasks are tagged *offline* or *needs Pi*.
 1. [ ] *offline, owner* Write-up: Pi 5 setup, results and discussion are drafted; still open are the title,
    authors, abstract, checking the Pi 4 column against the thesis, the final figure set, and acknowledgments.
 2. [ ] *running 2026-10-02* Linux guest S2 + E4 (`GUEST=linux FULL=1 experiments/pi_guest.sh ~/results-linux`);
-   then compare with the Pi 4 cyclictest numbers and the thesis's timeout threshold (recount from the
-   histogram if it is not 100 us). Zephyr S2/E4 could follow with `GUEST=zephyr FULL=1`.
+   then compare S2 with the Pi 4 thesis (same 100 us threshold: 19 % of cyclictest samples overall,
+   `cache` alone 99 %; Pi 5 S3 `cache` is 0 %, max 63 us). Zephyr S2/E4 could follow with `GUEST=zephyr FULL=1`.
 3. [ ] *needs Pi, ask the owner first* Root-cell colouring kernel (`patches/linux-rpi-6.6-jailhouse-colours.patch`):
    hangs at boot with `jailhouse_colours=24-31` (three tries 2026-10-02, power cycle each time). The serial
    log of the third (`~/rpi5-serial.log` on the host) shows the cause: a failed high-order allocation's

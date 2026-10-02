@@ -82,6 +82,8 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   Average latency shows the partition clearly: idle 1 us; under `cache`/`stream`/`vm` 12/22/22 us with
   spatial isolation only (guest-only colouring the same), 6/7/9 us with the guest+root partition
   (`results/pi5-linux/figures/s3_interference`). Unlike the rt-bench task, `stream` improves too.
+  Same 100 us threshold as the Pi 4 thesis, where cyclictest under `cache` timed out on 99 % of samples
+  (19 % over all S2 stressors): on the Pi 5 the same guest measurement stays far below the deadline.
 - **Zephyr guest (2026-10-02, fixed 2.4 GHz, `results/pi5-zephyr/`)**: same rt-bench task as a Zephyr thread,
   S1 300 s + S3 60 s per load. Idle task 14.1 us (bare-metal 13.9 us), wake-up latency avg 0.57 us with the
   scheduler. Same pattern as bare-metal: memory load -> 97-100 % misses with spatial isolation only; colour
