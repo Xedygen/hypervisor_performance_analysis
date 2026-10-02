@@ -29,6 +29,12 @@ Working (2026-09-25):
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
 
 Pi 5 bugs found and fixed:
+- **Lost hardware IRQ when the pending queue is full** (jailhouse-rt and upstream, 2026-10-02): the per-CPU
+  pending-IRQ queue stored one entry per IPI and silently dropped IRQs when full; a dropped PPI/SPI stays
+  active on the physical GIC, so that CPU never gets it again. Caught on the serial console as an RCU stall
+  (root CPU 2 lost its timer) during Linux-guest S2 (`rmap`). Fix: coalesce identical (irq, sender)
+  entries; warning if the queue still overflows. From 2026-10-02 15:15 all runs use the fixed hypervisor
+  (Linux-guest S2 colhog stressors 1-57 ran before it).
 - **Stale SGI after `enable`** (jailhouse-rt): Linux enables the hypervisor from an IPI handler, so the
   physical SGI stays active; SGI 1 is Jailhouse's management event, so CPUs could never be suspended or
   woken again (CPU hotplug failed, `cell create` hung the board). Fix ported from upstream Jailhouse:
