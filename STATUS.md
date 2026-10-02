@@ -157,6 +157,9 @@ sudo ./tools/jailhouse enable configs/arm64/rpi5.cell
 
 ## Kernel / jailhouse-rt changes
 
+- Kernel config (build/kernel-6.6, bcm2711_defconfig + LOCALVERSION -v8-jailhouse): since 2026-10-02 also
+  `SOFTLOCKUP_DETECTOR`, `HARDLOCKUP_DETECTOR` (buddy) and `WQ_WATCHDOG`, so a stuck root CPU prints a
+  backtrace to the serial console.
 - Kernel: `patches/linux-rpi-6.6-jailhouse-colours.patch` (root-cell colour reservation, see above) and
   `patches/linux-rpi-6.6-jailhouse-exports.patch` (apply to raspberrypi/linux `rpi-6.6.y` at 6.6.78):
   export `ioremap_page_range`, `__get_vm_area_caller`,
