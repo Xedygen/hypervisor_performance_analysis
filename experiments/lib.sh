@@ -73,7 +73,8 @@ start_logger() {
 
 # (re)start the guest cell: <cell config name without .cell> [inmate command line]
 # rpi5-linux-* cells boot the PREEMPT_RT Linux guest (linux-guest/, Image in
-# ~/linux-guest) running cyclictest in 1 s windows; all others run rt-bench.
+# ~/linux-guest) running cyclictest in 1 s windows; rpi5-zephyr* cells run the
+# Zephyr rt-bench (~/zephyr/rt-bench.bin); all others the bare-metal rt-bench.
 start_cell() {
 	local cfg=$JH/configs/arm64/$1.cell c
 	local args=()
@@ -92,6 +93,10 @@ start_cell() {
 			-c "console=hvc0 earlycon=jailhouse ct_secs=1 ${2:-}" "$cfg" \
 			"$HOME/linux-guest/Image" >/dev/null) ||
 			{ log "linux guest start failed ($1)"; exit 1; } ;;
+	rpi5-zephyr*)
+		jh cell create "$cfg" &&
+		jh cell load zephyr "$HOME/zephyr/rt-bench.bin" -a 0x30000000 &&
+		jh cell start zephyr || { log "zephyr start failed ($1)"; exit 1; } ;;
 	*)
 		jh cell create "$cfg" &&
 		jh cell load rt-bench "$JH/inmates/demos/arm64/rt-bench.bin" "${args[@]}" &&
