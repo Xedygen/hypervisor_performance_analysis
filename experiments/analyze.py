@@ -192,15 +192,21 @@ def main(res):
             continue
         c = combine(rows)
         ran = [r for r in rows if r["rc"] in ("0", "")]
+        cycles = max(int(r["rep"]) for r in rows)
         md += [f"### {label}", "",
-               f"{len(rows)} stressor windows ({len(ran)} exited 0). Over all periods: "
+               f"{len(rows)} stressor windows in {cycles} cycle(s) ({len(ran)} exited 0). Over all periods: "
                f"latency >100 us {c['lat_over_pct']:.3f}%, response >100 us {c['resp_over_pct']:.3f}%, "
                f"worst latency {us(c['lat_max_ns'])} us, worst task time {us(c['exe_max_ns'])} us, "
                f"worst response {us(c['resp_max_ns'])} us.", "",
                "Top 20 stressors by response-time deadline misses:", "",
                "| Stressor | Resp >100 us | Task avg/max (us) | Lat max (us) | L3 refills/period |",
                "|---|---|---|---|---|"]
-        for r in sorted(rows, key=lambda r: (r["resp_over_pct"], r["exe_max_ns"]), reverse=True)[:20]:
+        # repetitions of a stressor combined; the cyclictest guest has no task time, so
+        # its latency breaks ties
+        per = {s: {"load": s, **combine([r for r in rows if r["load"] == s])}
+               for s in {r["load"] for r in rows}}
+        key = lambda r: (r["resp_over_pct"], r["exe_max_ns"], r["lat_max_ns"])
+        for r in sorted(per.values(), key=key, reverse=True)[:20]:
             md.append(f"| {r['load']} | {r['resp_over_pct']:.2f}% | {us(r['exe_avg_ns'])} / "
                       f"{us(r['exe_max_ns'])} | {us(r['lat_max_ns'])} | {r['l3_refill_per_period']:.1f} |")
         md.append("")

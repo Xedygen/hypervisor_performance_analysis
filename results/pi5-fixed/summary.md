@@ -37,7 +37,7 @@ Per period: task = pointer-chase control task; L3 refills and bus accesses are P
 
 ### Spatial isolation only (no colouring)
 
-100 stressor windows (97 exited 0). Over all periods: latency >100 us 0.000%, response >100 us 27.073%, worst latency 21.33 us, worst task time 949.54 us, worst response 957.41 us.
+100 stressor windows in 1 cycle(s) (97 exited 0). Over all periods: latency >100 us 0.000%, response >100 us 27.073%, worst latency 21.33 us, worst task time 949.54 us, worst response 957.41 us.
 
 Top 20 stressors by response-time deadline misses:
 
@@ -66,7 +66,7 @@ Top 20 stressors by response-time deadline misses:
 
 ### Guest coloured 8/32, root kept out of guest colours
 
-100 stressor windows (99 exited 0). Over all periods: latency >100 us 0.000%, response >100 us 24.963%, worst latency 43.85 us, worst task time 885.81 us, worst response 892.91 us.
+100 stressor windows in 1 cycle(s) (99 exited 0). Over all periods: latency >100 us 0.000%, response >100 us 24.963%, worst latency 43.85 us, worst task time 885.81 us, worst response 892.91 us.
 
 Top 20 stressors by response-time deadline misses:
 
