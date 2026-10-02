@@ -684,3 +684,184 @@
 1790894047.366991 [MG] Initializing memguard on CPU 3
 1790894047.367017 Created cell "linux-guest"
 1790894047.367071 Page pool usage after cell creation: mem 170/4061, remap 5/131072
+1790940905.373674 <missed 236200 bytes of console log>
+1790940905.376648 irqs: 64, preallocated irqs: 0
+1790940905.376748 Root IRQ handler: 0xffff800080010000
+1790940905.376796 rcu: srcu_init: Setting srcu_struct sizes based on contention.
+1790940905.376887 arch_timer: cp15 timer(s) running at 54.00MHz (virt).
+1790940905.376951 clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
+1790940905.377000 sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
+1790940905.377033 printk: legacy console [hvc0] enabled
+1790940905.377066 printk: legacy bootconsole [jailhouse0] disabled
+1790940905.377118 Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=54000)
+1790940905.377153 pid_max: default: 4096 minimum: 301
+1790940905.377193 Mount-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790940905.377236 Mountpoint-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790940905.377274 cacheinfo: Unable to detect cache hierarchy for CPU 0
+1790940905.377303 rcu: Hierarchical SRCU implementation.
+1790940905.377333 rcu: 	Max phase no-delay instances is 400.
+1790940905.377360 smp: Bringing up secondary CPUs ...
+1790940905.377387 smp: Brought up 1 node, 1 CPU
+1790940905.377414 SMP: Total of 1 processors activated.
+1790940905.377446 CPU features: detected: 32-bit EL0 Support
+1790940905.377490 CPU features: detected: Data cache clean to the PoU not required for I/D coherence
+1790940905.377527 CPU features: detected: CRC32 instructions
+1790940905.377560 CPU features: detected: RCpc load-acquire (LDAPR)
+1790940905.377599 CPU features: detected: Speculative Store Bypassing Safe (SSBS)
+1790940905.377634 spectre-bhb mitigation disabled by compile time option
+1790940905.377661 CPU: All CPU(s) started at EL1
+1790940905.377693 alternatives: applying system-wide alternatives
+1790940905.377717 devtmpfs: initialized
+1790940905.377766 clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+1790940905.377801 futex hash table entries: 16 (order: -2, 1024 bytes, linear)
+1790940905.377860 DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+1790940905.377903 hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+1790940905.377934 ASID allocator initialised with 65536 entries
+1790940905.377966 clocksource: Switched to clocksource arch_sys_counter
+1790940905.377999 workingset: timestamp_bits=62 max_order=13 bucket_order=0
+1790940905.378023 clk: Disabling unused clocks
+1790940905.378052 Freeing unused kernel memory: 1728K
+1790940905.378137 Run /init as init process
+1790940905.378180 linux-guest: 6.6.78-rt51+, cyclictest windows of 1 s, deadline 100 us
+1790940906.516476 L 1000 1 2 15 0
+1790940907.556470 L 1000 1 1 12 0
+1790940908.600458 L 1000 1 1 14 0
+1790940909.744461 L 1000 1 1 14 0
+1790940910.784446 L 1000 1 1 9 0
+1790940911.517342 Closing cell "linux-guest"
+1790940911.517412 [MG] Initializing memguard on CPU 3
+1790940911.517437 [SMMUv2] Exiting SMMUv2 on cell 1
+1790940911.517489 [COL] Colored OP 1: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790940911.517510 [COL] Result: 0
+1790940911.517559 [COL] Colored OP 4: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000001)
+1790940911.517578 [COL] Result: 0
+1790940911.517611 Page pool usage after cell destruction: mem 142/4061, remap 5/131072
+1790940911.517653 [MG] Initializing memguard on CPU 3
+1790940911.658147 [MG] Initializing memguard on CPU 3
+1790940911.658255 [COL] Colored OP 0: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790940911.658283 [COL] Result: 0
+1790940911.659441 [MG] Initializing memguard on CPU 3
+1790940911.659463 Created cell "linux-guest"
+1790940911.659495 Page pool usage after cell creation: mem 170/4061, remap 5/131072
+1790943327.633383 <missed 9266 bytes of console log>
+1790943327.636575 irqs: 64, preallocated irqs: 0
+1790943327.636658 Root IRQ handler: 0xffff800080010000
+1790943327.636699 rcu: srcu_init: Setting srcu_struct sizes based on contention.
+1790943327.636748 arch_timer: cp15 timer(s) running at 54.00MHz (virt).
+1790943327.636809 clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
+1790943327.636858 sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
+1790943327.636891 printk: legacy console [hvc0] enabled
+1790943327.636925 printk: legacy bootconsole [jailhouse0] disabled
+1790943327.636973 Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=54000)
+1790943327.637003 pid_max: default: 4096 minimum: 301
+1790943327.637039 Mount-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790943327.637074 Mountpoint-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790943327.637106 cacheinfo: Unable to detect cache hierarchy for CPU 0
+1790943327.637135 rcu: Hierarchical SRCU implementation.
+1790943327.637164 rcu: 	Max phase no-delay instances is 400.
+1790943327.637191 smp: Bringing up secondary CPUs ...
+1790943327.637213 smp: Brought up 1 node, 1 CPU
+1790943327.637241 SMP: Total of 1 processors activated.
+1790943327.637273 CPU features: detected: 32-bit EL0 Support
+1790943327.637314 CPU features: detected: Data cache clean to the PoU not required for I/D coherence
+1790943327.637354 CPU features: detected: CRC32 instructions
+1790943327.637386 CPU features: detected: RCpc load-acquire (LDAPR)
+1790943327.637420 CPU features: detected: Speculative Store Bypassing Safe (SSBS)
+1790943327.637457 spectre-bhb mitigation disabled by compile time option
+1790943327.637482 CPU: All CPU(s) started at EL1
+1790943327.637512 alternatives: applying system-wide alternatives
+1790943327.637534 devtmpfs: initialized
+1790943327.637577 clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+1790943327.637616 futex hash table entries: 16 (order: -2, 1024 bytes, linear)
+1790943327.637689 DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+1790943327.637737 hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+1790943327.637770 ASID allocator initialised with 65536 entries
+1790943327.637802 clocksource: Switched to clocksource arch_sys_counter
+1790943327.637836 workingset: timestamp_bits=62 max_order=13 bucket_order=0
+1790943327.637863 clk: Disabling unused clocks
+1790943327.637890 Freeing unused kernel memory: 1728K
+1790943327.637914 Run /init as init process
+1790943327.637950 linux-guest: 6.6.78-rt51+, cyclictest windows of 1 s, deadline 100 us
+1790943328.775477 L 1000 1 1 12 0
+1790943329.815496 L 1000 1 1 15 0
+1790943330.855401 L 1000 1 1 15 0
+1790943331.999485 L 1000 1 1 6 0
+1790943333.039466 L 1000 1 1 11 0
+1790943333.771560 Closing cell "linux-guest"
+1790943333.771625 [MG] Initializing memguard on CPU 3
+1790943333.771650 [SMMUv2] Exiting SMMUv2 on cell 1
+1790943333.771701 [COL] Colored OP 1: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790943333.771721 [COL] Result: 0
+1790943333.771770 [COL] Colored OP 4: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000001)
+1790943333.771789 [COL] Result: 0
+1790943333.771821 Page pool usage after cell destruction: mem 142/4061, remap 5/131072
+1790943333.771846 [MG] Initializing memguard on CPU 3
+1790943333.875940 [MG] Initializing memguard on CPU 3
+1790943333.876028 [COL] Colored OP 0: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790943333.876050 [COL] Result: 0
+1790943333.877114 [MG] Initializing memguard on CPU 3
+1790943333.877141 Created cell "linux-guest"
+1790943333.877174 Page pool usage after cell creation: mem 170/4061, remap 5/131072
+1790947080.092727 <missed 9267 bytes of console log>
+1790947080.095847 irqs: 64, preallocated irqs: 0
+1790947080.095931 Root IRQ handler: 0xffff800080010000
+1790947080.096016 rcu: srcu_init: Setting srcu_struct sizes based on contention.
+1790947080.096076 arch_timer: cp15 timer(s) running at 54.00MHz (virt).
+1790947080.096141 clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
+1790947080.096205 sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
+1790947080.096246 printk: legacy console [hvc0] enabled
+1790947080.096286 printk: legacy bootconsole [jailhouse0] disabled
+1790947080.096346 Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=54000)
+1790947080.096379 pid_max: default: 4096 minimum: 301
+1790947080.096422 Mount-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790947080.096468 Mountpoint-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+1790947080.096508 cacheinfo: Unable to detect cache hierarchy for CPU 0
+1790947080.096540 rcu: Hierarchical SRCU implementation.
+1790947080.096573 rcu: 	Max phase no-delay instances is 400.
+1790947080.096603 smp: Bringing up secondary CPUs ...
+1790947080.096629 smp: Brought up 1 node, 1 CPU
+1790947080.096658 SMP: Total of 1 processors activated.
+1790947080.096692 CPU features: detected: 32-bit EL0 Support
+1790947080.096741 CPU features: detected: Data cache clean to the PoU not required for I/D coherence
+1790947080.096799 CPU features: detected: CRC32 instructions
+1790947080.096838 CPU features: detected: RCpc load-acquire (LDAPR)
+1790947080.096881 CPU features: detected: Speculative Store Bypassing Safe (SSBS)
+1790947080.096924 spectre-bhb mitigation disabled by compile time option
+1790947080.096954 CPU: All CPU(s) started at EL1
+1790947080.096988 alternatives: applying system-wide alternatives
+1790947080.097013 devtmpfs: initialized
+1790947080.097067 clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+1790947080.097112 futex hash table entries: 16 (order: -2, 1024 bytes, linear)
+1790947080.097175 DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+1790947080.097226 hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+1790947080.097264 ASID allocator initialised with 65536 entries
+1790947080.097303 clocksource: Switched to clocksource arch_sys_counter
+1790947080.097344 workingset: timestamp_bits=62 max_order=13 bucket_order=0
+1790947080.097375 clk: Disabling unused clocks
+1790947080.097405 Freeing unused kernel memory: 1728K
+1790947080.097430 Run /init as init process
+1790947080.097472 linux-guest: 6.6.78-rt51+, cyclictest windows of 1 s, deadline 100 us
+1790947081.239295 L 1000 1 2 14 0
+1790947082.283292 L 1000 1 1 12 0
+1790947083.323275 L 1000 1 1 14 0
+1790947084.363504 L 1000 1 1 6 0
+1790947085.507293 L 1000 1 1 13 0
+1790947086.235371 Closing cell "linux-guest"
+1790947086.235481 [MG] Initializing memguard on CPU 3
+1790947086.235512 [SMMUv2] Exiting SMMUv2 on cell 1
+1790947086.235572 [COL] Colored OP 1: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790947086.235596 [COL] Result: 0
+1790947086.235654 [COL] Colored OP 4: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000001)
+1790947086.235676 [COL] Result: 0
+1790947086.235715 Page pool usage after cell destruction: mem 142/4061, remap 5/131072
+1790947086.235744 [MG] Initializing memguard on CPU 3
+1790947086.358252 [MG] Initializing memguard on CPU 3
+1790947086.358356 [COL] Colored OP 0: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790947086.358383 [COL] Result: 0
+1790947086.358407 [MG] Initializing memguard on CPU 3
+1790947086.358428 Created cell "linux-guest"
+1790947086.358460 Page pool usage after cell creation: mem 170/4061, remap 5/131072
+1790947086.358485 [MG] Initializing memguard on CPU 3
+1790947086.358534 [COL] Colored OP 3: PHYS 0x30000000 -> VIRT 0x30000000 (SIZE: 0x02000000, COL: 0x000000ff, extra: 0x0000000000000000)
+1790947086.358552 [COL] Result: 0
+1790947086.358574 Cell "linux-guest" can be loaded

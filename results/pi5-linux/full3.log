@@ -1,0 +1,37 @@
+2026-10-02 16:17:53 linux guest campaign start, temp 37500
+2026-10-02 16:17:53 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:17:59 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 16:17:59 skip s1 (done)
+2026-10-02 16:17:59 skip s3 (done)
+2026-10-02 16:17:59 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:18:06 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 16:18:06 skip s1 (done)
+2026-10-02 16:18:06 skip s3 (done)
+2026-10-02 16:18:06 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:18:12 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 16:18:14 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 437 MB
+2026-10-02 16:18:14 skip s1 (done)
+2026-10-02 16:18:14 skip s3 (done)
+2026-10-02 16:18:16 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:18:23 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 16:18:25 colorhog: holding 125 MB in colours 24-31 (returned 386 MB), MemAvailable 440 MB
+2026-10-02 16:18:25 skip s2 (done)
+2026-10-02 16:18:27 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:18:33 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 16:18:33 s2 membarrier rep 1 hung the board earlier, skipping
+2026-10-02 16:59:12 === config extra-e4-mg20000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 16:59:18 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 17:03:26 === config extra-e4-mg5000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:03:33 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 17:07:41 === config extra-e4-mg1000-plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:07:48 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 17:11:59 === config extra-e4-mg20000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:12:06 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 17:12:08 colorhog: holding 133 MB in colours 24-31 (returned 410 MB), MemAvailable 454 MB
+2026-10-02 17:16:18 === config extra-e4-mg5000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:16:25 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 17:16:27 colorhog: holding 129 MB in colours 24-31 (returned 382 MB), MemAvailable 450 MB
+2026-10-02 17:20:38 === config extra-e4-mg1000-colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:20:44 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 17:20:46 colorhog: holding 129 MB in colours 24-31 (returned 382 MB), MemAvailable 454 MB
+2026-10-02 17:25:00 linux guest campaign done, temp 44650

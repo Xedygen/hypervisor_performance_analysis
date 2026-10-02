@@ -1,0 +1,17 @@
+2026-10-02 14:34:58 linux guest campaign start, temp 44650
+2026-10-02 14:34:58 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:35:05 guest cell running (rpi5-linux-demo ), governor performance
+2026-10-02 14:35:05 skip s1 (done)
+2026-10-02 14:35:05 skip s3 (done)
+2026-10-02 14:35:05 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:35:11 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 14:35:11 skip s1 (done)
+2026-10-02 14:35:11 skip s3 (done)
+2026-10-02 14:35:11 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:35:17 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 14:35:19 colorhog: holding 133 MB in colours 24-31 (returned 378 MB), MemAvailable 436 MB
+2026-10-02 14:35:19 skip s1 (done)
+2026-10-02 14:35:19 skip s3 (done)
+2026-10-02 14:35:21 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:35:28 guest cell running (rpi5-linux-col ), governor performance
+2026-10-02 14:35:30 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 439 MB

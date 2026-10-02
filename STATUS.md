@@ -95,6 +95,9 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   (`results/pi5-linux/figures/s3_interference`). Unlike the rt-bench task, `stream` improves too.
   Same 100 us threshold as the Pi 4 thesis, where cyclictest under `cache` timed out on 99 % of samples
   (19 % over all S2 stressors): on the Pi 5 the same guest measurement stays far below the deadline.
+  S2 (100 stressors, 2026-10-02): no sample above 100 us in either config; worst 87 us (spatial only),
+  78 us (colour partition). E4 (MemGuard) with the partition lowers the max further, at budget 1000:
+  `cache` 23 us, `stream` 31 us, `vm` 48 us (budget 20000: 54/44/70 us).
 - **Zephyr guest (2026-10-02, fixed 2.4 GHz, `results/pi5-zephyr/`)**: same rt-bench task as a Zephyr thread,
   S1 300 s + S3 60 s per load. Idle task 14.1 us (bare-metal 13.9 us), wake-up latency avg 0.57 us with the
   scheduler. Same pattern as bare-metal: memory load -> 97-100 % misses with spatial isolation only; colour

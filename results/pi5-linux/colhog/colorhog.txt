@@ -1,1 +1,1 @@
-colorhog: holding 130 MB in colours 24-31 (returned 381 MB), MemAvailable 434 MB
+colorhog: holding 125 MB in colours 24-31 (returned 386 MB), MemAvailable 440 MB
