@@ -5,12 +5,13 @@ tasks are tagged *offline* or *needs Pi*.
 
 1. [ ] *offline, owner* Write-up: Pi 5 setup, results and discussion are drafted; still open are the title,
    authors, abstract, checking the Pi 4 column against the thesis, the final figure set, and acknowledgments.
-2. [ ] *needs Pi, ask the owner first* Root-cell colouring kernel (`patches/linux-rpi-6.6-jailhouse-colours.patch`):
-   hangs at boot with `jailhouse_colours=24-31` (three tries 2026-10-02, power cycle each time). The serial
-   log of the third (`~/rpi5-serial.log` on the host) shows the cause: a failed high-order allocation's
-   memory dump with free blocks only of 32 and 64 KB (none >= 128 KB), then the console stops. The patch now
-   keeps the first 64 MB uncoloured as a high-order pool (built, not booted). Next try: tryboot with
-   `jh66/cmdline-col.txt` while logging the serial console.
+2. [ ] *needs Pi* Root-cell colouring kernel (`patches/linux-rpi-6.6-jailhouse-colours.patch`): with the 64 MB
+   high-order pool it boots (2026-10-02, tryboot `jh66/cmdline-col.txt`): 176 MB reserved, MemTotal 567 MB.
+   But it isolates much less than colorhog (`results/pi5-colourkernel/`, S3 1 run, coloured guest, no
+   colorhog): `cache` 868 L3 refills/period (guest-only colouring 1026, colorhog 469), task 391 us (439/232).
+   Likely cause: the uncoloured low RAM - the 64 MB pool plus the 64 MB CMA area at 28-92 MB, which movable
+   user pages use - still gives guest colours to the stressors. Next: `cma=16M` and a smaller pool, or
+   reserve the guest colours above the pool and CMA and let colorhog cover the rest.
 3. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
 4. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
 5. [ ] *owner decision* CPU hotplug is broken in firmware: on 2026-10-02 every secondary core (1-3) failed to
