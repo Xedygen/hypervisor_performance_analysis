@@ -63,6 +63,18 @@ use_config() {
 
 jh() { sudo "$JH/tools/jailhouse" "$@"; }
 
+# timer interrupt count per root CPU every 5 s, synced so that it survives a
+# watchdog reset: shows whether a CPU stopped getting its timer before a hang
+start_irqmon() {
+	[ -f /tmp/irqmon.pid ] && kill "$(cat /tmp/irqmon.pid)" 2>/dev/null
+	(while sleep 5; do
+		echo "$EPOCHREALTIME $(grep arch_timer /proc/interrupts | awk '{print $2, $3, $4}')" \
+			>> "$OUT/irqmon.log"
+		sync "$OUT/irqmon.log"
+	done) &
+	echo $! > /tmp/irqmon.pid
+}
+
 start_logger() {
 	sudo pkill -f "jailhouse console -f" 2>/dev/null
 	(sudo stdbuf -o0 "$JH/tools/jailhouse" console -f |
@@ -103,6 +115,7 @@ start_cell() {
 		jh cell start rt-bench || { log "cell start failed ($1)"; exit 1; } ;;
 	esac
 	start_logger
+	start_irqmon
 	[ "${FIX_FREQ:-0}" = 1 ] && fix_freq
 	sleep 5
 	log "guest cell running ($1 ${2:-}), governor" \
