@@ -7,8 +7,8 @@ tasks are tagged *offline* or *needs Pi*.
    authors, abstract, checking the Pi 4 column against the thesis, the final figure set, and acknowledgments.
 2. [ ] *needs Pi* Linux guest: S2 (100 stressors) and E4 (MemGuard) with cyclictest; check which
    threshold the thesis used for its timeout rate and recount from the histogram if it is not 100 us.
-3. [ ] *needs Pi* Zephyr guest (boots, rt-bench runs): find why the control task is ~20 us vs 13.9 us
-   bare-metal, then add coloured Zephyr cells and a Zephyr campaign through `start_cell`.
+3. [ ] *needs Pi* Zephyr guest (boots, rt-bench runs, same task time as bare-metal at equal frequency):
+   add coloured Zephyr cells and a Zephyr campaign through `start_cell`.
 4. [ ] *needs Pi, ask the owner first* Root-cell colouring kernel (`patches/linux-rpi-6.6-jailhouse-colours.patch`):
    hangs at boot with `jailhouse_colours=24-31` (three tries 2026-10-02, power cycle each time). The serial
    log of the third (`~/rpi5-serial.log` on the host) shows the cause: a failed high-order allocation's
