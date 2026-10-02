@@ -7,6 +7,7 @@
 | Spatial isolation only (no colouring) | 3 | 0.28 / 0.30 / 2.13 | 0.000% | 13.91 / 156.89 | 157.80 | 0.009% |
 | Guest coloured 8/32, root unrestricted | 1 | 0.30 / 0.30 / 1.07 | 0.000% | 20.69 / 144.74 | 145.09 | 0.343% |
 | Guest coloured 8/32, root kept out of guest colours | 1 | 0.30 / 0.30 / 1.28 | 0.000% | 20.54 / 174.87 | 175.26 | 0.312% |
+| Guest coloured 8/32, root coloured by the kernel | 1 | 0.30 / 0.30 / 6.04 | 0.000% | 20.70 / 449.72 | 453.67 | 0.310% |
 
 ## S3: targeted memory interference (3 root cores), per load
 
@@ -17,21 +18,27 @@ Per period: task = pointer-chase control task; L3 refills and bus accesses are P
 | idle | Spatial isolation only (no colouring) | 13.93 / 143.39 | 143.81 | 0.01% | 1.20 | 7.5 | 6379 |
 | idle | Guest coloured 8/32, root unrestricted | 20.74 / 140.13 | 140.50 | 0.38% | 1.67 | 53.6 | 8259 |
 | idle | Guest coloured 8/32, root kept out of guest colours | 20.45 / 146.02 | 146.37 | 0.30% | 6.80 | 50.1 | 8249 |
+| idle | Guest coloured 8/32, root coloured by the kernel | 20.64 / 215.07 | 217.43 | 0.25% | 2.35 | 53.3 | 8247 |
 | cache | Spatial isolation only (no colouring) | 379.01 / 588.05 | 594.48 | 99.29% | 16.72 | 874.5 | 7557 |
 | cache | Guest coloured 8/32, root unrestricted | 439.03 / 586.72 | 591.87 | 99.88% | 22.26 | 1025.8 | 8295 |
 | cache | Guest coloured 8/32, root kept out of guest colours | 232.44 / 554.92 | 558.96 | 89.36% | 10.96 | 469.0 | 8277 |
+| cache | Guest coloured 8/32, root coloured by the kernel | 189.81 / 554.91 | 561.46 | 76.20% | 12.05 | 325.2 | 8290 |
 | stream | Spatial isolation only (no colouring) | 386.93 / 477.57 | 482.61 | 100.00% | 8.44 | 1025.8 | 8468 |
 | stream | Guest coloured 8/32, root unrestricted | 387.72 / 503.39 | 509.37 | 99.96% | 12.39 | 1027.3 | 8456 |
 | stream | Guest coloured 8/32, root kept out of guest colours | 306.99 / 415.35 | 420.43 | 100.00% | 9.46 | 790.3 | 8293 |
+| stream | Guest coloured 8/32, root coloured by the kernel | 212.79 / 630.52 | 635.80 | 100.00% | 18.72 | 467.7 | 8301 |
 | memcpy | Spatial isolation only (no colouring) | 13.91 / 110.56 | 111.20 | 0.00% | 1.89 | 7.3 | 6365 |
 | memcpy | Guest coloured 8/32, root unrestricted | 21.27 / 145.07 | 145.59 | 0.43% | 1.69 | 59.4 | 8251 |
 | memcpy | Guest coloured 8/32, root kept out of guest colours | 20.91 / 151.91 | 152.37 | 0.29% | 0.89 | 55.2 | 8246 |
+| memcpy | Guest coloured 8/32, root coloured by the kernel | 21.09 / 640.67 | 647.87 | 0.14% | 7.20 | 58.3 | 8240 |
 | vm | Spatial isolation only (no colouring) | 482.69 / 741.87 | 747.59 | 96.34% | 15.93 | 994.7 | 8216 |
 | vm | Guest coloured 8/32, root unrestricted | 496.60 / 753.44 | 758.85 | 99.91% | 14.41 | 1026.8 | 8356 |
 | vm | Guest coloured 8/32, root kept out of guest colours | 374.80 / 682.87 | 687.91 | 91.69% | 17.55 | 725.6 | 8230 |
+| vm | Guest coloured 8/32, root coloured by the kernel | 337.92 / 671.57 | 677.17 | 90.08% | 16.31 | 578.6 | 8254 |
 | pwalk | Spatial isolation only (no colouring) | 15.24 / 113.13 | 113.74 | 0.02% | 2.89 | 21.8 | 6375 |
 | pwalk | Guest coloured 8/32, root unrestricted | 24.32 / 157.26 | 157.78 | 0.76% | 1.61 | 94.7 | 8253 |
 | pwalk | Guest coloured 8/32, root kept out of guest colours | 23.80 / 135.44 | 135.78 | 0.64% | 6.83 | 88.8 | 8247 |
+| pwalk | Guest coloured 8/32, root coloured by the kernel | 22.53 / 544.98 | 552.18 | 0.41% | 7.20 | 73.6 | 8241 |
 
 ## S2: 100 stress-ng stressors x 30 s on the root cell
 

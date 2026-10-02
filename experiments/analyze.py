@@ -13,6 +13,7 @@ CONFIGS = [
     ("plain", "Spatial isolation only (no colouring)"),
     ("col", "Guest coloured 8/32, root unrestricted"),
     ("colhog", "Guest coloured 8/32, root kept out of guest colours"),
+    ("colkern", "Guest coloured 8/32, root coloured by the kernel"),
 ]
 W_RE = re.compile(
     r"^(?P<t>\d+\.\d+) W \d+ lat (?P<lmin>\d+) (?P<lavg>\d+) (?P<lmax>\d+) (?P<lover>\d+) "

@@ -1,0 +1,4 @@
+2026-10-02 18:53:18 colkern: guest coloured 8/32, root coloured by the kernel (jailhouse_colours=24-31 cma=16M )
+2026-10-02 18:53:18 === config colkern (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 18:53:24 guest cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 19:04:37 colkern done

@@ -127,6 +127,9 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
 hung on a failed order >= 5 allocation, seen on the serial console). With `cma=16M` it isolates better than
 colorhog in a short S3 check (`cache`: 315 vs 469 L3 refills/period, 191 vs 232 us task); with the default
 64 MB CMA area it does not (868), because CMA pages serve movable user allocations in every colour.
+Full S3 as config `colkern` (S1 300 s + S3 1 run, `results/pi5-fixed/`): better than colorhog on averages
+(`cache` 190 vs 232 us, 325 vs 469 L3 refills; `stream` 213 vs 307 us, 468 vs 790), but higher single-period
+maxima under light loads (`memcpy` 641 vs 152 us) - to be repeated.
 
 jailhouse-rt cannot colour the root cell: `hypervisor/setup.c` maps the root memory regions 1:1, and
 colouring works by mapping scattered physical fragments to contiguous cell addresses, which is impossible

@@ -23,6 +23,7 @@ CONFIGS = [  # (dir, legend label, colour)
     ("plain", "Spatial isolation only", "#2a78d6"),
     ("col", "Guest coloured only (8/32)", "#eb6834"),
     ("colhog", "Guest + root partitioned", "#1baf7a"),
+    ("colkern", "Guest + root (kernel) partitioned", "#8a3ffc"),
 ]
 LOADS = ["idle", "cache", "stream", "memcpy", "vm", "pwalk"]
 # loads get their own hues (validated light-mode set, below 3:1 contrast, so
@@ -67,9 +68,10 @@ def save(fig, out, name):
     print("wrote", out / f"{name}.png")
 
 
-def grouped_bars(ax, groups, series, value_of, width=0.26):
+def grouped_bars(ax, groups, series, value_of, width=None):
     """series: [(label, colour, rows)]; bars with a 2 px surface gap."""
     n = len(series)
+    width = width or 0.8 / n
     for i, (label, colour, rows) in enumerate(series):
         xs, ys = [], []
         for g, grp in enumerate(groups):
