@@ -104,8 +104,8 @@ def fig_s3_cyclictest(series, out):
     deadline(axes[0])
     axes[0].set_ylim(0, 110)
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=9,
-               bbox_to_anchor=(0.5, -0.06))
+    fig.legend(handles, labels, loc="lower center", ncol=len(handles), fontsize=9,
+               bbox_to_anchor=(0.5, -0.1))
     fig.suptitle("S3: cyclictest in the PREEMPT_RT Linux guest (1 kHz)", x=0.01, y=1.03,
                  ha="left", fontweight="bold")
     save(fig, out, "s3_interference")
@@ -129,8 +129,8 @@ def fig_s3(res, runs, out):
     deadline(axes[0])
     axes[1].set_ylim(0, 105)
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=9,
-               bbox_to_anchor=(0.5, -0.06))
+    fig.legend(handles, labels, loc="lower center", ncol=len(handles), fontsize=9,
+               bbox_to_anchor=(0.5, -0.1))
     fig.suptitle("S3: targeted memory interference on the guest cell", x=0.01, y=1.03,
                  ha="left", fontweight="bold")
     save(fig, out, "s3_interference")
