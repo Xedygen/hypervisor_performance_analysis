@@ -1,8 +1,8 @@
 diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 8a0f86043..8247d96d2 100644
+index 8a0f86043..bcc65a574 100644
 --- a/arch/arm64/mm/init.c
 +++ b/arch/arm64/mm/init.c
-@@ -438,6 +438,60 @@ void __init arm64_memblock_init(void)
+@@ -438,6 +438,69 @@ void __init arm64_memblock_init(void)
  	high_memory = __va(memblock_end_of_DRAM() - 1) + 1;
  }
  
@@ -21,6 +21,13 @@ index 8a0f86043..8247d96d2 100644
 + */
 +#define JH_COLOUR_SIZE		SZ_4K
 +#define JH_COLOUR_PERIOD	(32 * JH_COLOUR_SIZE)
++/*
++ * The holes cap free blocks at 64 KB (order 4); the first JH_COLOUR_KEEP of
++ * RAM stays whole so that order >= 5 allocations still succeed (booting with
++ * all of RAM coloured hung after a failed high-order allocation).
++ * ponytail: guest-colour pages in this pool can still reach root Linux.
++ */
++#define JH_COLOUR_KEEP		SZ_64M
 +
 +static int jh_colour_first = -1, jh_colour_last;
 +
@@ -48,6 +55,8 @@ index 8a0f86043..8247d96d2 100644
 +	for_each_mem_range(i, &start, &end) {
 +		for (base = ALIGN_DOWN(start, JH_COLOUR_PERIOD); base < end;
 +		     base += JH_COLOUR_PERIOD) {
++			if (base < JH_COLOUR_KEEP)
++				continue;
 +			s = max(start, base + jh_colour_first * JH_COLOUR_SIZE);
 +			e = min(end, base + (jh_colour_last + 1) * JH_COLOUR_SIZE);
 +			if (s < e) {
@@ -63,7 +72,7 @@ index 8a0f86043..8247d96d2 100644
  void __init bootmem_init(void)
  {
  	unsigned long min, max;
-@@ -498,6 +552,8 @@ void __init mem_init(void)
+@@ -498,6 +561,8 @@ void __init mem_init(void)
  
  	swiotlb_init(swiotlb, SWIOTLB_VERBOSE);
  
