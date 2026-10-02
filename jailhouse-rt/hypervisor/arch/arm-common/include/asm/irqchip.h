@@ -73,6 +73,7 @@ struct pending_irqs {
 	u16 irqs[MAX_PENDING_IRQS];
 	/* contains the calling CPU ID in case of a SGI */
 	u16 sender[MAX_PENDING_IRQS];
+	bool overflow_reported;
 	unsigned int head;
 	/* removal from the ring happens lockless, thus tail is volatile */
 	volatile unsigned int tail;

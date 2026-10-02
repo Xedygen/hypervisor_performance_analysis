@@ -230,13 +230,26 @@ void irqchip_set_pending(struct public_per_cpu *cpu_public, u16 irq_id)
 	struct pending_irqs *pending = &cpu_public->pending_irqs;
 	bool local_injection = (this_cpu_public() == cpu_public);
 	const u16 sender = this_cpu_id();
-	unsigned int new_tail;
+	unsigned int new_tail, i;
 	struct sgi sgi;
 
 	if (local_injection && irqchip.inject_irq(irq_id, sender) != -EBUSY)
 		return;
 
 	spin_lock(&pending->lock);
+
+	/*
+	 * Coalesce like the GIC does for a pending interrupt: without this,
+	 * an IPI storm (e.g. TLB shootdowns) fills the queue while the target
+	 * has IRQs masked, and the next hardware IRQ is dropped. A dropped
+	 * PPI/SPI stays active on the physical GIC (Jailhouse acknowledged it
+	 * and relies on the guest's EOI via the HW bit), so that CPU never
+	 * sees it again - on the Pi 5 a root CPU lost its timer this way.
+	 */
+	for (i = pending->head; i != pending->tail;
+	     i = (i + 1) % MAX_PENDING_IRQS)
+		if (pending->irqs[i] == irq_id && pending->sender[i] == sender)
+			goto queued;
 
 	new_tail = (pending->tail + 1) % MAX_PENDING_IRQS;
 
@@ -250,7 +263,12 @@ void irqchip_set_pending(struct public_per_cpu *cpu_public, u16 irq_id)
 		 */
 		memory_barrier();
 		pending->tail = new_tail;
+	} else if (!pending->overflow_reported) {
+		pending->overflow_reported = true;
+		printk("WARNING: CPU %d: pending IRQ queue full, IRQ %d lost\n",
+		       cpu_public->cpu_id, irq_id);
 	}
+queued:
 
 	/*
 	 * The unlock has memory barrier semantic on ARM v7 and v8. Therefore
