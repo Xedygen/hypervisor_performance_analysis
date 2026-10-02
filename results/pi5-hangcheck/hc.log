@@ -1,0 +1,7 @@
+2026-10-02 17:47:45 hang check start, temp 41350
+2026-10-02 17:47:45 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 17:47:51 guest cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 17:47:53 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 451 MB
+2026-10-02 18:00:45 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 18:00:51 guest cell running (rpi5-rtbench ), governor performance
+2026-10-02 18:13:41 hang check done, temp 50150

@@ -33,7 +33,9 @@ Pi 5 bugs found and fixed:
   a list register already held that SGI ID, even if the entry was only active (guest in its handler);
   the GIC would make it pending again. Under IPI storms an `smp_call_function()` then waited forever:
   the board hangs (soft lockup in `membarrier` on CPU 2, RCU stalls). Fix: set the pending bit on the
-  active entry. All runs from 2026-10-02 16:18 use it; the earlier unexplained hangs are probably this.
+  active entry. Confirmed 2026-10-02: since the fix no stall or hang in ~75 S2 stressors, all 24 E4 runs
+  and a hang check (`experiments/pi_hangcheck.sh`, `results/pi5-hangcheck/`): the 8 stressors that hung
+  before, 3 runs each with and without colorhog, 48/48 clean.
 - **Lost hardware IRQ when the pending queue is full** (jailhouse-rt and upstream, 2026-10-02): the per-CPU
   pending-IRQ queue stored one entry per IPI and silently dropped IRQs when full; a dropped PPI/SPI stays
   active on the physical GIC, so that CPU never gets it again. Fix: coalesce identical (irq, sender)

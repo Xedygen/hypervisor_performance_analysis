@@ -14,24 +14,7 @@ tasks are tagged *offline* or *needs Pi*.
    memory dump with free blocks only of 32 and 64 KB (none >= 128 KB), then the console stops. The patch now
    keeps the first 64 MB uncoloured as a high-order pool (built, not booted). Next try: tryboot with
    `jh66/cmdline-col.txt` while logging the serial console.
-4. [ ] *needs Pi* Debug the board hangs (`opcode`, `vm` without colorhog are the interesting cases): the
-   serial console (USB-TTL on GPIO14/15, kernel log level 8) is now logged all the time to
-   `~/rpi5-serial.log` on the host, so the next hang during a campaign leaves its last kernel messages
-   there. If it shows nothing, try the 3-pin debug UART (needs a JST cable). Consider giving the watchdog
-   to the hypervisor/critical cell instead of root Linux.
-   Clue (2026-10-02, serial log): Linux-guest S2 with colorhog (128 MB pinned of 768 MB) hit the OOM killer
-   under `memrate` (3 kills in 4 s, one triggered by the thermal guard's own allocation). Several earlier
-   hangs were colorhog runs: memory exhaustion in the root cell is a candidate cause. Test: re-run the
-   hang stressors with colorhog keeping more memory free, or watch `/proc/meminfo` during them.
-   Hangs caught on the serial console 2026-10-02 (all on root CPU 2): RCU stall "timer wakeup didn't
-   happen ... cpu=2" twice (Linux-guest S2 `rmap`, hang; `stack`, recovered), then a soft lockup: CPU 2
-   186 s in `membarrier` -> `smp_call_function_many` waiting for an IPI answer, workqueues stuck on
-   CPUs 1+2, hang. Root cause found: `gicv2_inject_irq` dropped a new SGI when the same SGI ID was
-   already in a list register, also when that entry was only active (root in its IPI handler), so IPIs
-   were lost under IPI storms. Fixed 16:17 (pending bit set on the active entry) plus the pending-queue
-   coalescing. To confirm: no further stalls in the campaigns, and `experiments/pi_hangcheck.sh`
-   (stressors that hung before, 3x each) runs clean.
-5. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
-6. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
-7. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware
+4. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
+5. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
+6. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware
    PSCI CPU_ON fails); bare-Linux reference runs go last or boot with `maxcpus=3`.
