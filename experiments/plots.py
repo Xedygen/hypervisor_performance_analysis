@@ -82,8 +82,37 @@ def grouped_bars(ax, groups, series, value_of, width=0.26):
     ax.set_xticks(range(len(groups)), groups)
 
 
+def is_cyclictest(runs):
+    """Linux guest: no control task, so every task time is 0."""
+    rows = [r for rs in runs.values() for r in rs]
+    return bool(rows) and all(r.get("exe_avg_ns", 0) == 0 for r in rows)
+
+
+def fig_s3_cyclictest(series, out):
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.8), sharey=False)
+    specs = [
+        ("Max wake-up latency (us)", lambda r, g: (c := combined(r, scenario="s3", load=g)) and c["lat_max_ns"] / 1000),
+        ("Avg wake-up latency (us)", lambda r, g: (c := combined(r, scenario="s3", load=g)) and c["lat_avg_ns"] / 1000),
+    ]
+    for ax, (title, fn) in zip(axes, specs):
+        grouped_bars(ax, LOADS, series, fn)
+        ax.set_title(title, loc="left")
+        ax.set_xlabel("Root-cell load (3 cores)")
+        ax.tick_params(axis="x", labelsize=8)
+    deadline(axes[0])
+    axes[0].set_ylim(0, 110)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=9,
+               bbox_to_anchor=(0.5, -0.06))
+    fig.suptitle("S3: cyclictest in the PREEMPT_RT Linux guest (1 kHz)", x=0.01, y=1.03,
+                 ha="left", fontweight="bold")
+    save(fig, out, "s3_interference")
+
+
 def fig_s3(res, runs, out):
     series = [(lab, col, runs[d]) for d, lab, col in CONFIGS if runs.get(d)]
+    if is_cyclictest(runs):
+        return fig_s3_cyclictest(series, out)
     fig, axes = plt.subplots(1, 3, figsize=(13, 3.8))
     specs = [
         ("Control task time (avg, us)", lambda r, g: (c := combined(r, scenario="s3", load=g)) and c["exe_avg_ns"] / 1000),
