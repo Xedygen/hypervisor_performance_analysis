@@ -16,8 +16,12 @@ Working (2026-09-25):
 - Thesis experiments (S1-S4 + follow-ups) run unattended (`experiments/pi_night.sh`, `pi_extra.sh`,
   `pi_fixed.sh`; `resume.sh` restarted them after resets from cron @reboot, since removed); results in `results/`,
   including the raw `console.log`/`markers.log` per config, so `experiments/analyze.py` can rebuild every table.
-- Active Cooler: temperature-controlled with early trip points (40/50/57/63 C -> 100/150/200/255 PWM,
-  Pi OS default is 50/60/67.5/75 C). Thermal guard service kills load at 75 C.
+- Active Cooler: full speed (PWM 255, ~9360 rpm) from 20 C since 2026-10-02 (trip points 20/30/40/50 C,
+  all 255; backup `config.txt.bak-fan`). Campaigns up to E4 and the first Linux-guest run used the earlier
+  temperature-controlled setting (40/50/57/63 C -> 100/150/200/255). Thermal guard service kills load at 75 C.
+- Serial console: USB-TTL on GPIO14/15 (RP1 UART0, `ttyAMA0`, 115200 8N1); kernel log level 8 on it
+  (`/etc/sysctl.d/99-serial-debug.conf`, `loglevel=8` in `jh66/cmdline.txt`). Output starts 0.41 s into
+  boot and replays the log from 0 s. Host side: PuTTY on `/dev/ttyUSB0`, logging to `~/rpi5-serial.log`.
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
 
 Pi 5 bugs found and fixed:
