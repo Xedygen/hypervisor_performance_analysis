@@ -79,6 +79,10 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
   root load raises the max to 63 us (`cache`), 54 us (`stream`), 79 us (`vm`) with spatial isolation
   only; with the guest+root colour partition 41/51/64 us. cyclictest's own working set is tiny, so
   cache interference shows only in the tail, unlike the rt-bench control task.
+- **Zephyr guest (2026-10-02, fixed 2.4 GHz, `results/pi5-zephyr/`)**: same rt-bench task as a Zephyr thread,
+  S1 300 s + S3 60 s per load. Idle task 14.1 us (bare-metal 13.9 us), wake-up latency avg 0.57 us with the
+  scheduler. Same pattern as bare-metal: memory load -> 97-100 % misses with spatial isolation only; colour
+  partition helps less than with the bare-metal guest (`cache`: 306 us, 593 L3 refills/period vs 232 / 469).
 - Thermal: max 57.9 C, never throttled.
 
 ## Fixes waiting for a board test (2026-09-29)

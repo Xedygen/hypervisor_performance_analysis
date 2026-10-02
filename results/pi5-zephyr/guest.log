@@ -1,0 +1,9 @@
+2026-10-02 14:00:10 zephyr guest campaign start, temp 38050
+2026-10-02 14:00:10 === config plain (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:00:17 guest cell running (rpi5-zephyr ), governor performance
+2026-10-02 14:11:29 === config col (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:11:35 guest cell running (rpi5-zephyr-col ), governor performance
+2026-10-02 14:22:47 === config colhog (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 14:22:53 guest cell running (rpi5-zephyr-col ), governor performance
+2026-10-02 14:22:55 colorhog: holding 128 MB in colours 24-31 (returned 383 MB), MemAvailable 444 MB
+2026-10-02 14:34:10 zephyr guest campaign done, temp 46300
