@@ -9,12 +9,13 @@ tasks are tagged *offline* or *needs Pi*.
    threshold the thesis used for its timeout rate and recount from the histogram if it is not 100 us.
 3. [ ] *needs Pi* Zephyr guest (boots, rt-bench runs): find why the control task is ~20 us vs 13.9 us
    bare-metal, then add coloured Zephyr cells and a Zephyr campaign through `start_cell`.
-4. [ ] *needs Pi* Root-cell colouring: the first version (reservation in `bootmem_init()`) hung the boot
-   with `jailhouse_colours=24-31` (2026-10-02, power cycle needed); without the parameter it boots fine.
-   Likely an early contiguous allocation (percpu areas, swiotlb) no longer fit between the 96 KB holes,
-   and a panic before `psci_dt_init()` cannot reboot. Patch now reserves in `mem_init()`, after those
-   allocations. Install with `scripts/install_kernel.sh`, then tryboot with `jh66/cmdline-col.txt`
-   (`cmdline=cmdline-col.txt` in tryboot.txt, already on the SD card) and check `dmesg`/`MemTotal`.
+4. [ ] *needs Pi + USB-TTL* Root-cell colouring kernel (`patches/linux-rpi-6.6-jailhouse-colours.patch`):
+   boots fine without the parameter, but hangs early with `jailhouse_colours=24-31` both when reserving
+   in `bootmem_init()` and in `mem_init()` (2026-10-02, power cycle needed each time; `panic=10` never
+   rebooted, so it is a hang, not a panic). Structural problem either way: with a 32 KB hole every
+   128 KB the largest free block is 64 KB (order 4), so any order >= 5 allocation fails or retries forever.
+   Get the boot log on the debug UART first (with item 5). Options: keep a high-order pool uncoloured
+   (e.g. skip the first 64 MB), or drop this and keep colorhog. Parked until then.
 5. [ ] *needs Pi + USB-TTL* Debug the board hangs on the SoC debug UART (PL011 `0x107d001000`, 3-pin JST,
    3.3 V), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the interesting cases.
    Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
