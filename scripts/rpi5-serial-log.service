@@ -1,0 +1,10 @@
+[Unit]
+Description=Log the Raspberry Pi 5 serial console (USB-TTL) to ~/rpi5-serial.log
+
+[Service]
+ExecStart=/usr/bin/python3 -u /mnt/localdisk/Projects/hypervisor_system/scripts/serial_log.py /dev/ttyUSB0 %h/rpi5-serial.log
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

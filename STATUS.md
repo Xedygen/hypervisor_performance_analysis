@@ -22,7 +22,9 @@ Working (2026-09-25):
 - Serial console: USB-TTL on GPIO14/15 (RP1 UART0, `ttyAMA0`, 115200 8N1); kernel log level 8 on it
   (`/etc/sysctl.d/99-serial-debug.conf`, `loglevel=8` in `jh66/cmdline.txt`). Output starts 0.41 s into
   boot and replays the log from 0 s. Host side: `scripts/serial_log.py` (or PuTTY, not both) logs to
-  `~/rpi5-serial.log`. Opening the port can send a break, which the Pi reads as magic SysRq, so SysRq is
+  `~/rpi5-serial.log`, run always by the user service `scripts/rpi5-serial-log.service`
+  (`~/.config/systemd/user/`, `systemctl --user enable --now rpi5-serial-log`); watch it live with
+  `scripts/serial_view.sh`. Opening the port can send a break, which the Pi reads as magic SysRq, so SysRq is
   limited to sync and debug dumps (`kernel.sysrq = 24` in the same sysctl file).
 - systemd hardware watchdog (1 min) auto-reboots the Pi after a hang.
 
