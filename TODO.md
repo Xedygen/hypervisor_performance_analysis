@@ -19,6 +19,10 @@ tasks are tagged *offline* or *needs Pi*.
    `~/rpi5-serial.log` on the host, so the next hang during a campaign leaves its last kernel messages
    there. If it shows nothing, try the 3-pin debug UART (needs a JST cable). Consider giving the watchdog
    to the hypervisor/critical cell instead of root Linux.
+   Clue (2026-10-02, serial log): Linux-guest S2 with colorhog (128 MB pinned of 768 MB) hit the OOM killer
+   under `memrate` (3 kills in 4 s, one triggered by the thermal guard's own allocation). Several earlier
+   hangs were colorhog runs: memory exhaustion in the root cell is a candidate cause. Test: re-run the
+   hang stressors with colorhog keeping more memory free, or watch `/proc/meminfo` during them.
 5. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
 6. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
 7. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware
