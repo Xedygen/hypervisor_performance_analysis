@@ -14,9 +14,11 @@ tasks are tagged *offline* or *needs Pi*.
    memory dump with free blocks only of 32 and 64 KB (none >= 128 KB), then the console stops. The patch now
    keeps the first 64 MB uncoloured as a high-order pool (built, not booted). Next try: tryboot with
    `jh66/cmdline-col.txt` while logging the serial console.
-4. [ ] *needs Pi + USB-TTL* Debug the board hangs on the SoC debug UART (PL011 `0x107d001000`, 3-pin JST,
-   3.3 V), root-cell kernel log on it too: `opcode` and `vm` without colorhog are the interesting cases.
-   Consider giving the watchdog to the hypervisor/critical cell instead of root Linux.
+4. [ ] *needs Pi* Debug the board hangs (`opcode`, `vm` without colorhog are the interesting cases): the
+   serial console (USB-TTL on GPIO14/15, kernel log level 8) is now logged all the time to
+   `~/rpi5-serial.log` on the host, so the next hang during a campaign leaves its last kernel messages
+   there. If it shows nothing, try the 3-pin debug UART (needs a JST cable). Consider giving the watchdog
+   to the hypervisor/critical cell instead of root Linux.
 5. [ ] *needs Pi* Repeat S2 three times per config (thesis used >= 3 full cycles; each campaign did 1).
 6. [ ] *flash to verify* SD card kit: check `/var/log/firstboot-apt.log` and the package list on a fresh flash.
 7. [ ] *needs Pi* CPU 3 does not come back online after a long offline period without Jailhouse (firmware
