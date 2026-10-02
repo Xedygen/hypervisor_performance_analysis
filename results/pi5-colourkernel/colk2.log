@@ -1,0 +1,4 @@
+2026-10-02 18:46:49 colour-kernel check, jailhouse_colours=24-31 cma=16M 
+2026-10-02 18:46:50 === config colk-cma16 (root CPUs 0-2, 3 load instances, governor performance, 2400 MHz)
+2026-10-02 18:46:56 guest cell running (rpi5-rtbench-col ), governor performance
+2026-10-02 18:51:04 colour-kernel check done

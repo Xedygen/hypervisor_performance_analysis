@@ -123,6 +123,11 @@ pointer-chase control task, 100 us deadline); all numbers below are the fixed-fr
 
 ## Root-cell colouring (design, 2026-09-30)
 
+**Result 2026-10-02:** boots with a 64 MB uncoloured pool for high-order allocations (without it the boot
+hung on a failed order >= 5 allocation, seen on the serial console). With `cma=16M` it isolates better than
+colorhog in a short S3 check (`cache`: 315 vs 469 L3 refills/period, 191 vs 232 us task); with the default
+64 MB CMA area it does not (868), because CMA pages serve movable user allocations in every colour.
+
 jailhouse-rt cannot colour the root cell: `hypervisor/setup.c` maps the root memory regions 1:1, and
 colouring works by mapping scattered physical fragments to contiguous cell addresses, which is impossible
 under an already running Linux (late launch). So the root side must be excluded by Linux itself at boot.
